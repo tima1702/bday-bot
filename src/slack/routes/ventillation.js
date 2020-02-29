@@ -1,5 +1,5 @@
 const express = require('express');
-const utils = require('../../utils');
+const uiBlocks = require('../uiBlocks');
 const router = express.Router();
 
 function commandNotFound(command = '') {
@@ -41,43 +41,25 @@ router.post('/', function(req, res) {
   if (req.body && req.body.text) {
     switch (req.body.text) {
       case 'add':
-        Promise.all([utils.weather.get()]).then((values) => {
-          const resp = {
-            blocks: [
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: '*Событие добавления*',
-                },
-              },
-            ],
-          };
-
-          const weather = JSON.parse(values[0]);
-
-          if (weather.main && weather.main.temp) {
-            resp.blocks.push({
+        const resp = {
+          blocks: [
+            {
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `Температура: ${weather.main.temp}`,
+                text: '*Событие добавления*',
               },
-            });
-          }
+            },
+          ],
+        };
 
-          if (weather.wind && weather.wind.speed) {
-            resp.blocks.push({
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `Скорость ветра: ${weather.wind.speed} м/c`,
-              },
-            });
-          }
-
-          res.json(resp);
-        });
+        uiBlocks.weather
+          .get('Novocherkassk')
+          .then((r) => {
+            resp.blocks.push(r);
+            res.json(resp);
+          })
+          .catch(() => res.json(resp));
 
         break;
 
