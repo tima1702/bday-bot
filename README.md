@@ -26,3 +26,5 @@ https://api.slack.com/apps/{Your APP ID}/oauth
 
 `/slack/slash/admins?secret={SLACK_EVENT_SERVER_SECRET}` - command /admins
 
+`/slack/events?secret={SLACK_EVENT_SERVER_SECRET}` - Events URL
+

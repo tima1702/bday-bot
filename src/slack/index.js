@@ -2,6 +2,7 @@ const express = require('express');
 
 const client = require('./client');
 const routes = require('./routes');
+const appDb = require('../db');
 
 const env = require('../env');
 
@@ -23,6 +24,10 @@ function startServer() {
 
   app.use('/slack/slash/ventillation', routes.ventillation);
 
+  app.use('/slack/events', routes.events);
+
+  app.use('/slack/interactive', routes.interactive);
+
   app.listen(env.getSlackEventServerPort());
 }
 
@@ -32,6 +37,12 @@ function init() {
     return;
   }
   client.channels.updateChannelsInfo();
+
+  appDb.weather.add('Новочеркасск');
+  appDb.weather.add('Таганрог');
+  appDb.weather.add('Краснодар');
+
+  client.ventillation.checkScheduleAndSendMessageWatcher();
 
   startServer();
   console.log('Slack Server is started');
