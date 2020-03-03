@@ -72,18 +72,41 @@ function list(channelId) {
                 record.duration_minute,
               )}* - ${weekDays.join(', ')}`,
             },
+            accessory: {
+              type: 'button',
+              action_id: `remove_ventillation:${channelId}`,
+              text: {
+                type: 'plain_text',
+                text: 'Удалить',
+                emoji: true,
+              },
+              style: 'danger',
+              value: `${JSON.stringify({ record_id: record.id })}`,
+            },
           };
         });
+
+        if (schedule && schedule.length) {
+          resolve([
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: '*Расписание проветривания:*',
+              },
+            },
+            ...schedule,
+          ]);
+        }
 
         resolve([
           {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Расписание проветривания:*',
+              text: '*Расписание не найдено!*',
             },
           },
-          ...schedule,
         ]);
       })
       .catch((e) => {

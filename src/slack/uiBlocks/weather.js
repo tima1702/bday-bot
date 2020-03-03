@@ -10,7 +10,9 @@ function get(city) {
           type: 'mrkdwn',
           text: `За окном:thermometer: ${r.temp} °C, ощущается как ${
             r.temp_feels_like
-          } °C, :tornado_cloud: *${utils.weather.degToCompass(r.wind_deg)}* ${r.wind_speed} м/c`,
+          } °C, :tornado_cloud: *${utils.weather.degToCompass(r.wind_deg)}* ${r.wind_speed} м/c${
+            utils.date.printDate(r.last_update) ? `. _Обновлено ${utils.date.printDate(r.last_update)}_` : ''
+          }`,
         },
       });
     });

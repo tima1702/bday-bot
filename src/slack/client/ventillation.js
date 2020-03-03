@@ -3,10 +3,9 @@ const utils = require('../../utils');
 const db = require('../db');
 const { WebClient } = require('@slack/web-api');
 const env = require('../../env');
+const web = new WebClient(env.getSlackToken());
 
 function openAddModal(channel, triggerId) {
-  const web = new WebClient(env.getSlackToken());
-
   web.views.open({ trigger_id: triggerId, view: uiBlocks.ventillation.addModal(channel) });
 }
 
@@ -19,8 +18,6 @@ function successAdded(
   weekDaysValues,
   durationMinuteValue,
 ) {
-  const web = new WebClient(env.getSlackToken());
-
   const hours = utils.time.timeToString(timeHourValue);
   const minutes = utils.time.timeToString(timeMinuteValue);
   const weekDays = weekDaysValues.map((item) => uiBlocks.ventillation.typesWeekDays[item] || '').join(', ');
@@ -53,63 +50,90 @@ function successAdded(
     });
 }
 
-function checkScheduleAndSendMessageWatcher() {
-  let lastTime = new Date();
+function checkNotificationType(type) {
+  return type === 'here' ? '<!here> ' : type === 'channel' ? '<!channel> ' : '';
+}
 
-  setInterval(() => {
-    const currentTime = new Date();
-    if (currentTime.getHours() !== lastTime.getHours() || currentTime.getMinutes() !== lastTime.getMinutes()) {
-      const web = new WebClient(env.getSlackToken());
-      lastTime = currentTime;
+function checkScheduleAndSendMessage(currentTime) {
+  db.ventillation
+    .listRunSchedule(currentTime.getHours(), currentTime.getMinutes())
+    .then((records) => {
+      records.forEach((item) => {
+        const record = item.toJSON();
 
-      db.ventillation
-        .listRunSchedule(currentTime.getHours(), currentTime.getMinutes())
-        .then((records) => {
-          records.forEach((item) => {
-            const record = item.toJSON();
+        const blocks = [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `${checkNotificationType(item.notification_type)}*Проветривание!*`,
+            },
+          },
+        ];
 
-            const blocks = [
+        uiBlocks.weather.get('Novocherkassk').then((r) => {
+          blocks.push(r);
+
+          blocks.push({
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `Продолжительность: *${record.duration_minute} минут*. Завершение *${utils.time.calcDuration(
+                record.time_hour,
+                record.time_minute,
+                record.duration_minute,
+              )}*`,
+            },
+          });
+
+          web.chat.postMessage({
+            channel: record.channel_id,
+            text: 'Проветривание!',
+            blocks,
+          });
+
+          web.chat.scheduleMessage({
+            channel: record.channel_id,
+            post_at: new Date().getTime() / 1000 + record.duration_minute * 60,
+            text: 'Проветирвание завершено!',
+            blocks: [
               {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
-                  text: `${
-                    item.notification_type === 'here'
-                      ? '<!here>'
-                      : item.notification_type === 'channel'
-                      ? '<!channel>'
-                      : ''
-                  }*Проветривание!*`,
+                  text: `${checkNotificationType(item.notification_type)}*Проветирвание завершено!*`,
                 },
               },
-            ];
-
-            uiBlocks.weather.get('Novocherkassk').then((r) => {
-              blocks.push(r);
-
-              blocks.push({
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: `Продолжительность: *${record.duration_minute} минут*. Завершение *${utils.time.calcDuration(
-                    record.time_hour,
-                    record.time_minute,
-                    record.duration_minute,
-                  )}*`,
-                },
-              });
-
-              web.chat.postMessage({
-                channel: record.channel_id,
-                text: '',
-                blocks,
-              });
-            });
+            ],
           });
-        })
-        .catch(() => {});
+        });
+      });
+    })
+    .catch(() => {});
+}
+
+function checkScheduleAndSendMessageWatcher() {
+  let lastTime = new Date();
+
+  checkScheduleAndSendMessage(lastTime);
+
+  setInterval(() => {
+    const currentTime = new Date();
+    if (currentTime.getHours() !== lastTime.getHours() || currentTime.getMinutes() !== lastTime.getMinutes()) {
+      lastTime = currentTime;
+      checkScheduleAndSendMessage(currentTime);
     }
   }, 5000);
 }
 
-module.exports = { openAddModal, successAdded, checkScheduleAndSendMessageWatcher };
+function updateMessage(ts, channel_id, text, blocks) {
+  web.chat.update({ channel_id, text, ts, blocks });
+}
+
+module.exports = {
+  openAddModal,
+  successAdded,
+  checkScheduleAndSendMessageWatcher,
+  checkScheduleAndSendMessage,
+  updateMessage,
+};

@@ -1,6 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 const config = require('./config');
 const utils = require('../utils');
+const env = require('../env');
 
 class Weather extends Model {}
 Weather.init(
@@ -60,6 +61,7 @@ function add(city_name) {
  * @returns {Promise}
  */
 function updateAll() {
+  console.log('update weather', new Date());
   return new Promise((resolve, reject) => {
     Weather.sync()
       .then(() => {
@@ -93,6 +95,20 @@ function updateAll() {
   });
 }
 
+function updateAllWatcher() {
+  let lastTime = new Date();
+
+  updateAll();
+
+  setInterval(() => {
+    const currentTime = new Date();
+    if (currentTime - lastTime >= env.getWeatherInterval()) {
+      lastTime = currentTime;
+      updateAll();
+    }
+  }, 5000);
+}
+
 /**
  *
  *
@@ -111,4 +127,4 @@ function get(city_name) {
   });
 }
 
-module.exports = { add, updateAll, get };
+module.exports = { add, updateAll, get, updateAllWatcher };
