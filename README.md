@@ -29,6 +29,8 @@ https://api.slack.com/apps/{Your APP ID}/oauth
 
 `/slack/slash/admins?secret={SLACK_EVENT_SERVER_SECRET}` - command /admins
 
+`/slack/slash/settings?secret={SLACK_EVENT_SERVER_SECRET}` - command /settings
+
 `/slack/events?secret={SLACK_EVENT_SERVER_SECRET}` - Events URL
 
 `/slack/interactive?secret={SLACK_EVENT_SERVER_SECRET}` - Interactive URL
@@ -46,7 +48,17 @@ Short Description - Ventilation Schedule
 
 Usage Hint - [schedule, add, delete]
 
+### /settings
+
+Request URL - /slack/slash/settings?secret=super_secret
+
+Short Description - Settings
+
+Usage Hint - [weather admin]
+
 Добавить URL /slack/interactive?secret=super_secret на странице с настройками интерактивных компонентов
+
+## После добавления бота в Slack необходимо добавить его в канал, в котором он должен работать
 
 
 [logo]: botImage.png 'Bot Logo'
