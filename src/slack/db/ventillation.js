@@ -80,7 +80,7 @@ function list(channel_id) {
 }
 
 function listRunSchedule(time_hour, time_minute) {
-  const currentDay = new Date().getDay();
+  const currentDay = new Date().getDate();
   const whereObject = {
     where: {
       time_hour,
