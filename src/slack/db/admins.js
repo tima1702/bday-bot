@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const config = require('./config');
+const utils = require('../../utils');
 
 class Admins extends Model {}
 Admins.init(
@@ -46,4 +47,28 @@ function add(channel_id, admin_id) {
   });
 }
 
-module.exports = { add };
+function list(channel_id) {
+  return new Promise((resolve) => {
+    Admins.findAll({ where: { channel_id } })
+      .then((records) => resolve(records.map((item) => item.toJSON().admin_id)))
+      .catch((e) => resolve([]));
+  });
+}
+
+function checkAccess(channel_id, admin_id) {
+  return new Promise((resolve, reject) => {
+    Admins.count({ where: { channel_id, admin_id } })
+      .then((count) => {
+        if (count && count !== 0) resolve(true);
+        reject(false);
+
+        utils.logger.logAccess().warn(`The user ${admin_id} is not allowed to access the management functionality`);
+      })
+      .catch(() => {
+        reject(false);
+        utils.logger.logAccess().warn(`The user ${admin_id} is not allowed to access the management functionality`);
+      });
+  });
+}
+
+module.exports = { add, list, checkAccess };

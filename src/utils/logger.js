@@ -1,8 +1,11 @@
 const log4js = require('log4js');
 
 log4js.configure({
-  appenders: { database: { type: 'file', filename: 'app.log' } },
-  categories: { default: { appenders: ['database'], level: 'error' } },
+  appenders: {
+    database: { type: 'file', filename: 'log/app.log' },
+    access: { type: 'file', filename: 'log/access.log' },
+  },
+  categories: { default: { appenders: ['database', 'access'], level: 'error' } },
 });
 
 function logDb() {
@@ -11,4 +14,10 @@ function logDb() {
   return logger;
 }
 
-module.exports = { logDb };
+function logAccess() {
+  const logger = log4js.getLogger('access');
+  logger.level = 'warn';
+  return logger;
+}
+
+module.exports = { logDb, logAccess };

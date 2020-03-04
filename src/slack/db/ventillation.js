@@ -75,10 +75,7 @@ function add(channelId, notificationType, timeHour, timeMinute, durationMinute, 
 function list(channel_id) {
   return Ventillation.findAll({
     where: { channel_id },
-    order: [
-      ['time_hour', 'ASC'],
-      ['time_minute', 'ASC'],
-    ],
+    order: [['time_hour', 'ASC'], ['time_minute', 'ASC']],
   });
 }
 

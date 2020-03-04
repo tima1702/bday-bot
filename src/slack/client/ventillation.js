@@ -71,42 +71,44 @@ function checkScheduleAndSendMessage(currentTime) {
           },
         ];
 
-        uiBlocks.weather.get('Novocherkassk').then((r) => {
-          blocks.push(r);
+        db.channels.getWeatherCity(record.channel_id).then((weather_city) =>
+          uiBlocks.weather.get(weather_city).then((weatherBlock) => {
+            blocks.push(weatherBlock);
 
-          blocks.push({
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `Продолжительность: *${record.duration_minute} минут*. Завершение *${utils.time.calcDuration(
-                record.time_hour,
-                record.time_minute,
-                record.duration_minute,
-              )}*`,
-            },
-          });
-
-          web.chat.postMessage({
-            channel: record.channel_id,
-            text: 'Проветривание!',
-            blocks,
-          });
-
-          web.chat.scheduleMessage({
-            channel: record.channel_id,
-            post_at: new Date().getTime() / 1000 + record.duration_minute * 60,
-            text: 'Проветирвание завершено!',
-            blocks: [
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: `${checkNotificationType(item.notification_type)}*Проветирвание завершено!*`,
-                },
+            blocks.push({
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `Продолжительность: *${record.duration_minute} минут*. Завершение *${utils.time.calcDuration(
+                  record.time_hour,
+                  record.time_minute,
+                  record.duration_minute,
+                )}*`,
               },
-            ],
-          });
-        });
+            });
+
+            web.chat.postMessage({
+              channel: record.channel_id,
+              text: 'Проветривание!',
+              blocks,
+            });
+
+            web.chat.scheduleMessage({
+              channel: record.channel_id,
+              post_at: new Date().getTime() / 1000 + record.duration_minute * 60,
+              text: 'Проветривание завершено!',
+              blocks: [
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: `${checkNotificationType(item.notification_type)}*Проветривание завершено!*`,
+                  },
+                },
+              ],
+            });
+          }),
+        );
       });
     })
     .catch(() => {});

@@ -22,7 +22,9 @@ function startServer() {
     }
   });
 
-  app.use('/slack/slash/ventillation', routes.ventillation);
+  app.use('/slack/slash/ventillation', routes.slash.ventillation);
+
+  app.use('/slack/slash/settings', routes.slash.settings);
 
   app.use('/slack/events', routes.events);
 
@@ -37,10 +39,6 @@ function init() {
     return;
   }
   client.channels.updateChannelsInfo();
-
-  appDb.weather.add('Новочеркасск');
-  appDb.weather.add('Таганрог');
-  appDb.weather.add('Краснодар');
 
   client.ventillation.checkScheduleAndSendMessageWatcher();
 

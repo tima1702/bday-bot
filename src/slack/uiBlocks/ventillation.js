@@ -36,78 +36,99 @@ function successAdded(weekDays, hours, minutes, duration, notification) {
   ];
 }
 
-function list(channelId) {
+function createList(records, isAdmin, channelId) {
+  return records.map((item, index) => {
+    const record = item.toJSON();
+
+    const weekDays = [];
+
+    {
+      if (record.week_day_monday) weekDays.push('Пн');
+      if (record.week_day_tuesday) weekDays.push('Вт');
+      if (record.week_day_wednesday) weekDays.push('Ср');
+      if (record.week_day_thursday) weekDays.push('Чт');
+      if (record.week_day_friday) weekDays.push('Пт');
+      if (record.week_day_saturday) weekDays.push('Сб');
+      if (record.week_day_sunday) weekDays.push('Вс');
+    }
+
+    const data = {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `${utils.emoji.numberToEmoji(index + 1)} ${
+          typesNotification[record.notification_type]
+        } в *${utils.time.timeToString(record.time_hour)}:${utils.time.timeToString(
+          record.time_minute,
+        )}* продолжительность *${utils.time.timeToString(
+          record.duration_minute,
+        )}* минут, завершение *${utils.time.calcDuration(
+          record.time_hour,
+          record.time_minute,
+          record.duration_minute,
+        )}* - ${weekDays.join(', ')}`,
+      },
+    };
+
+    if (isAdmin)
+      data.accessory = {
+        type: 'button',
+        action_id: `remove_ventillation:${channelId}`,
+        text: {
+          type: 'plain_text',
+          text: 'Удалить',
+          emoji: true,
+        },
+        style: 'danger',
+        value: `${JSON.stringify({ record_id: record.id })}`,
+      };
+
+    return data;
+  });
+}
+
+function list(channelId, user_id) {
+  const scheduleNotFound = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: '*Расписание не найдено!*',
+      },
+    },
+  ];
+
+  const scheduleList = (schedule) => {
+    return [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: '*Расписание проветривания:*',
+        },
+      },
+      ...schedule,
+    ];
+  };
+
   return new Promise((resolve) => {
     db.ventillation
       .list(channelId)
       .then((records) => {
-        const schedule = records.map((item, index) => {
-          const record = item.toJSON();
+        db.admins
+          .checkAccess(channelId, user_id)
+          .then(() => {
+            const schedule = createList(records, true, channelId);
 
-          const weekDays = [];
+            if (schedule && schedule.length) resolve(scheduleList(schedule));
+            resolve(scheduleNotFound);
+          })
+          .catch(() => {
+            const schedule = createList(records, false, channelId);
 
-          {
-            if (record.week_day_monday) weekDays.push('Пн');
-            if (record.week_day_tuesday) weekDays.push('Вт');
-            if (record.week_day_wednesday) weekDays.push('Ср');
-            if (record.week_day_thursday) weekDays.push('Чт');
-            if (record.week_day_friday) weekDays.push('Пт');
-            if (record.week_day_saturday) weekDays.push('Сб');
-            if (record.week_day_sunday) weekDays.push('Вс');
-          }
-
-          return {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `${utils.emoji.numberToEmoji(index + 1)} ${
-                typesNotification[record.notification_type]
-              } в *${utils.time.timeToString(record.time_hour)}:${utils.time.timeToString(
-                record.time_minute,
-              )}* продолжительность *${utils.time.timeToString(
-                record.duration_minute,
-              )}* минут, завершение *${utils.time.calcDuration(
-                record.time_hour,
-                record.time_minute,
-                record.duration_minute,
-              )}* - ${weekDays.join(', ')}`,
-            },
-            accessory: {
-              type: 'button',
-              action_id: `remove_ventillation:${channelId}`,
-              text: {
-                type: 'plain_text',
-                text: 'Удалить',
-                emoji: true,
-              },
-              style: 'danger',
-              value: `${JSON.stringify({ record_id: record.id })}`,
-            },
-          };
-        });
-
-        if (schedule && schedule.length) {
-          resolve([
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: '*Расписание проветривания:*',
-              },
-            },
-            ...schedule,
-          ]);
-        }
-
-        resolve([
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Расписание не найдено!*',
-            },
-          },
-        ]);
+            if (schedule && schedule.length) resolve(scheduleList(schedule));
+            resolve(scheduleNotFound);
+          });
       })
       .catch((e) => {
         resolve([

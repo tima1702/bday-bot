@@ -1,5 +1,5 @@
-const ventillation = require('./ventillation');
 const events = require('./events');
 const interactive = require('./interactive');
+const slash = require('./slash');
 
-module.exports = { ventillation, events, interactive };
+module.exports = { events, interactive, slash };

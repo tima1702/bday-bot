@@ -19,13 +19,13 @@ function updateChannelsInfo() {
               item.creator || '',
               item.members || [],
             )
-            .then(() => console.log('then'))
-            .catch(() => console.log('catch'));
+            .then(() => {})
+            .catch(() => {});
 
           db.admins
             .add(item.id || '', item.creator || '')
-            .then(() => console.log('then'))
-            .catch(() => console.log('catch'));
+            .then(() => {})
+            .catch(() => {});
         });
       }
     })

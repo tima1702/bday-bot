@@ -33,21 +33,15 @@ function add(city_name) {
     utils.weather
       .get(city_name)
       .then((resp) => {
-        Weather.sync()
-          .then(() => {
-            Weather.count({ where: { city_name: resp.city_name } })
-              .then((count) => {
-                if (count != 0) {
-                  resolve('City already added');
-                } else {
-                  Weather.create({ ...resp })
-                    .then(() => {
-                      resolve(resp.city_name);
-                    })
-                    .catch(reject);
-                }
-              })
-              .catch(reject);
+        Weather.count({ where: { city_name: resp.city_name } })
+          .then((count) => {
+            if (count != 0) {
+              resolve(resp.city_name);
+            } else {
+              Weather.create({ ...resp })
+                .then(() => resolve(resp.city_name))
+                .catch(reject);
+            }
           })
           .catch(reject);
       })
@@ -61,7 +55,6 @@ function add(city_name) {
  * @returns {Promise}
  */
 function updateAll() {
-  console.log('update weather', new Date());
   return new Promise((resolve, reject) => {
     Weather.sync()
       .then(() => {

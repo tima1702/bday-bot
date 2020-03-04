@@ -3,6 +3,7 @@ const uiBlocks = require('../../uiBlocks');
 const axios = require('axios');
 const db = require('../../db');
 const actionVentillation = require('./ventillation');
+const actionSettings = require('./settings');
 const router = express.Router();
 
 router.post('/', function(req, res) {
@@ -15,9 +16,7 @@ router.post('/', function(req, res) {
     if (req.body.payload) {
       const payload = JSON.parse(req.body.payload);
       const view = payload.view || {};
-
-
-      const userId = JSON.parse(req.body.payload).user.id || '';
+      const userId = payload.user.id || '';
 
       if (payload.type === 'block_actions') {
         payload.actions.forEach((item) => {
@@ -28,7 +27,7 @@ router.post('/', function(req, res) {
               db.ventillation
                 .remove(JSON.parse(item.value).record_id)
                 .then(() => {
-                  uiBlocks.ventillation.list(channelId).then((blocks) =>
+                  uiBlocks.ventillation.list(channelId, userId).then((blocks) =>
                     axios.post(payload.response_url, {
                       replace_original: 'true',
                       blocks,
@@ -51,6 +50,10 @@ router.post('/', function(req, res) {
         switch (callbackType) {
           case 'modal-ventillation-add':
             res.json(actionVentillation.add(view, channelId, userId));
+            return;
+          case 'modal-settings-weather-change':
+            res.json(actionSettings.change(view, channelId, userId));
+
             return;
 
           default:

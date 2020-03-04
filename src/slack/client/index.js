@@ -1,6 +1,6 @@
 const channels = require('./channels');
-const axios = require('axios');
-
 const ventillation = require('./ventillation');
+const settings = require('./settings');
+const permission = require('./permission');
 
-module.exports = { channels, ventillation };
+module.exports = { channels, ventillation, settings, permission };
