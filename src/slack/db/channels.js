@@ -94,4 +94,12 @@ function getWeatherCity(channel_id) {
   });
 }
 
-module.exports = { add, changeWeatherCity, getWeatherCity };
+function getAdminId(channel_id) {
+  return new Promise((resolve) => {
+    Channels.findOne({ where: { channel_id } })
+      .then((record) => resolve(record.toJSON().creator || ''))
+      .catch(() => resolve(''));
+  });
+}
+
+module.exports = { add, changeWeatherCity, getWeatherCity, getAdminId };

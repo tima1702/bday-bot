@@ -26,8 +26,8 @@ function add(channel_id, admin_id) {
     }
 
     Admins.sync().then(() => {
-      Admins.count({ where: { channel_id } }).then((count) => {
-        if (count != 0) {
+      Admins.count({ where: { channel_id, admin_id } }).then((count) => {
+        if (count !== 0) {
           reject('Author already exists');
         } else {
           Admins.sync()
@@ -55,6 +55,10 @@ function list(channel_id) {
   });
 }
 
+function remove(channel_id, admin_id) {
+  return Admins.destroy({ where: { channel_id, admin_id } });
+}
+
 function checkAccess(channel_id, admin_id) {
   return new Promise((resolve, reject) => {
     Admins.count({ where: { channel_id, admin_id } })
@@ -71,4 +75,4 @@ function checkAccess(channel_id, admin_id) {
   });
 }
 
-module.exports = { add, list, checkAccess };
+module.exports = { add, list, checkAccess, remove };

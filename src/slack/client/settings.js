@@ -1,3 +1,4 @@
+const axios = require('axios');
 const uiBlocks = require('../uiBlocks');
 const dbApp = require('../../db');
 const db = require('../db');
@@ -9,6 +10,10 @@ function openChangeWeatherModal(channel_id, trigger_id) {
   uiBlocks.settings.weather.changeModal(channel_id).then((view) => {
     web.views.open({ trigger_id, view });
   });
+}
+
+function openAddAdministartorModal(channel_id, trigger_id, webhookUrl) {
+  web.views.open({ trigger_id, view: uiBlocks.settings.admins.addModal(channel_id, webhookUrl) });
 }
 
 function changeWeatherCityInChannel(channelId, newWeatherCity) {
@@ -31,7 +36,108 @@ function changeWeatherCityInChannel(channelId, newWeatherCity) {
   });
 }
 
+function errorAddCurrentUserAdmin(channelId, userId) {
+  web.chat.postEphemeral({
+    attachments: [],
+    channel: channelId,
+    user: userId,
+    text: '',
+    blocks: uiBlocks.settings.admins.errorAddAdminCurrentUser(),
+  });
+}
+
+function addUserAdmin(channelId, selectedUserId, adminId, webhookUrl) {
+  db.admins
+    .add(channelId, selectedUserId)
+    .then(() => {
+      uiBlocks.settings.admins.manageList(channelId, adminId).then((blocks) =>
+        axios.post(webhookUrl, {
+          replace_original: 'true',
+          blocks,
+        }),
+      );
+
+      web.chat.postMessage({
+        attachments: [],
+        channel: selectedUserId,
+        text: '',
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `<@${adminId}> выдал Вам полномочия администратора в канале <#${channelId}>`,
+            },
+          },
+        ],
+      });
+
+      web.dialog;
+    })
+    .catch((e) => {
+      web.chat.postEphemeral({
+        attachments: [],
+        channel: channelId,
+        user: adminId,
+        text: '',
+        blocks: uiBlocks.settings.admins.errorAddAdmin(selectedUserId),
+      });
+    });
+}
+
+function removeAdmin(channelId, userId, needRemoveUserId, webhookUrl) {
+  if (userId === needRemoveUserId) {
+    web.chat.postEphemeral({
+      attachments: [],
+      channel: channelId,
+      user: userId,
+      text: '',
+      blocks: uiBlocks.settings.admins.errorRemoveAdminCurrentUser(),
+    });
+    return;
+  }
+
+  db.admins
+    .remove(channelId, needRemoveUserId)
+    .then(() => {
+      uiBlocks.settings.admins.manageList(channelId, userId).then((blocks) =>
+        axios.post(webhookUrl, {
+          replace_original: 'true',
+          blocks,
+        }),
+      );
+
+      web.chat.postMessage({
+        attachments: [],
+        channel: needRemoveUserId,
+        text: '',
+        blocks: [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `<@${userId}> снял с Вас полномочия администратора в канале <#${channelId}>`,
+            },
+          },
+        ],
+      });
+    })
+    .catch(() =>
+      web.chat.postEphemeral({
+        attachments: [],
+        channel: channelId,
+        user: userId,
+        text: '',
+        blocks: uiBlocks.settings.admins.errorRemoveAdmin(needRemoveUserId),
+      }),
+    );
+}
+
 module.exports = {
   openChangeWeatherModal,
   changeWeatherCityInChannel,
+  openAddAdministartorModal,
+  errorAddCurrentUserAdmin,
+  addUserAdmin,
+  removeAdmin,
 };

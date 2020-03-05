@@ -10,8 +10,9 @@ router.post('/', function(req, res) {
       if (req.body && req.body.text) {
         switch (req.body.text) {
           case 'admin':
-            client.ventillation.openAddModal(req.body.channel_id, req.body.trigger_id);
-            res.end();
+            uiBlocks.settings.admins
+              .manageList(req.body.channel_id, req.body.user_id)
+              .then((blocks) => res.json({ blocks }));
             break;
 
           case 'weather':

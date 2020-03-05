@@ -37,7 +37,8 @@ function successAdded(weekDays, hours, minutes, duration, notification) {
 }
 
 function createList(records, isAdmin, channelId) {
-  return records.map((item, index) => {
+  const blocks = [];
+  records.forEach((item, i) => {
     const record = item.toJSON();
 
     const weekDays = [];
@@ -56,7 +57,7 @@ function createList(records, isAdmin, channelId) {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `${utils.emoji.numberToEmoji(index + 1)} ${
+        text: `${utils.emoji.numberToEmoji(i + 1)} ${
           typesNotification[record.notification_type]
         } в *${utils.time.timeToString(record.time_hour)}:${utils.time.timeToString(
           record.time_minute,
@@ -83,8 +84,15 @@ function createList(records, isAdmin, channelId) {
         value: `${JSON.stringify({ record_id: record.id })}`,
       };
 
-    return data;
+    blocks.push(data);
+    if (records.length - 1 !== i) {
+      blocks.push({
+        type: 'divider',
+      });
+    }
   });
+
+  return blocks;
 }
 
 function list(channelId, user_id) {

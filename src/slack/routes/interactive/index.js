@@ -4,6 +4,7 @@ const axios = require('axios');
 const db = require('../../db');
 const actionVentillation = require('./ventillation');
 const actionSettings = require('./settings');
+const client = require('../../client');
 const router = express.Router();
 
 router.post('/', function(req, res) {
@@ -38,6 +39,26 @@ router.post('/', function(req, res) {
 
               break;
 
+            case 'add_administrator_privileges':
+              client.settings.openAddAdministartorModal(channelId, payload.trigger_id, payload.response_url);
+              res.end();
+              break;
+
+            case 'remove_administrator_privileges':
+              let needDeleteUserId = '';
+              payload.actions.some((action) => {
+                const [actionType, channelId] = (action.action_id && action.action_id.split(':')) || ['', '', ''];
+                if (actionType === 'remove_administrator_privileges') {
+                  needDeleteUserId = action.value;
+                  return true;
+                }
+              });
+              client.settings.removeAdmin(channelId, userId, needDeleteUserId, payload.response_url);
+
+              res.end();
+
+              break;
+
             default:
               res.json({
                 response_action: 'errors',
@@ -53,7 +74,32 @@ router.post('/', function(req, res) {
             return;
           case 'modal-settings-weather-change':
             res.json(actionSettings.change(view, channelId, userId));
+          case 'modal-add-administrator-privileges':
+            let key = '';
+            let webhookUrl = '';
 
+            Object.keys(view.state.values.user_select).some((item) => {
+              const [findKey, findWebhookUrl] = item.split(':::');
+              if (findKey && findWebhookUrl) {
+                key = item;
+                webhookUrl = findWebhookUrl;
+                return true;
+              }
+            });
+
+            const selectedUserId =
+              (view.state.values.user_select[key] && view.state.values.user_select[key].selected_user) || '';
+
+            if (!userId || !selectedUserId || selectedUserId === userId) {
+              client.settings.errorAddCurrentUserAdmin(channelId, userId);
+              res.end();
+              return;
+            }
+            client.settings.addUserAdmin(channelId, selectedUserId, userId, webhookUrl);
+
+            res.json({
+              response_action: 'clear',
+            });
             return;
 
           default:
