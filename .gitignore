@@ -1,8 +1,8 @@
 node_modules
 .idea
 database.db
-./dbs/app_database.db
-./dbs/slack_database.db
+dbs
 .env
 .history
+log
 app.log

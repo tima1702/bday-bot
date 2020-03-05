@@ -1,0 +1,7 @@
+
+#domain# {
+	tls #email#
+	proxy / http://bot:3003/ {
+	transparent
+}
+}

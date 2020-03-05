@@ -1,6 +1,29 @@
 
 ![logo]
 
+# DOCKER
+
+Для того чтобы запустить приложение, используя **docker** нужно:
+
+1) Создать файл .env и внести в него нужные переменные 
+
+- Нельзя указывать переменные:
+
+- `SLACK_EVENT_SERVER_PORT`
+
+2) Настроить файл Caddyfile (для https и настройки LetsEncrypt):
+
+- заменить `#domain#` на ваш домен
+
+- заменить `#email#` на ваш email
+
+3) Выполнить команды:
+
+- `docker build -t exceedteam_bot .`
+
+- `docker-compose up -d`
+
+
 # Получить токен Slack
 
 https://api.slack.com/apps/{Your APP ID}/oauth
@@ -42,7 +65,7 @@ https://api.slack.com/apps/{Your APP ID}/oauth
 
 ### /ventilation
 
-Request URL - /slack/slash/ventillation?secret=super_secret
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/ventillation?secret=super_secret
 
 Short Description - Ventilation Schedule
 
@@ -50,13 +73,13 @@ Usage Hint - [schedule, add, delete]
 
 ### /settings
 
-Request URL - /slack/slash/settings?secret=super_secret
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/settings?secret=super_secret
 
 Short Description - Settings
 
 Usage Hint - [weather admin]
 
-Добавить URL /slack/interactive?secret=super_secret на странице с настройками интерактивных компонентов
+Добавить URL https?: //{YOUR DOMAIN}/slack/interactive?secret=super_secret на странице с настройками интерактивных компонентов
 
 ## После добавления бота в Slack необходимо добавить его в канал, в котором он должен работать
 

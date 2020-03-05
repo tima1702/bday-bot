@@ -1,0 +1,15 @@
+node_modules
+.idea
+database.db
+./dbs
+./log
+.env.example
+.history
+.gitignore
+.prettierrc
+app.log
+botImage.png
+build.sh
+docker-compose.yml
+Dockerfile
+README.md

@@ -1,0 +1,31 @@
+version: "3"
+
+networks:
+  web:
+    external: false
+
+services:
+  caddy:
+    image: abiosoft/caddy
+    restart: always
+    environment:
+      - ACME_AGREE=true
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - web
+    volumes:
+      - ./Caddyfile:/etc/Caddyfile
+      - ./caddy:/root/.caddy
+
+  bot:
+    image: exceedteam_bot
+    networks:
+      - web
+    restart: always
+    volumes:
+      - ./dbs:/app/dbs
+      - ./log:/app/log
+    ports: 
+      - 3003:3003
