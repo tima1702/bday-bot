@@ -13,7 +13,7 @@ function get(city) {
             text: `За окном :cityscape: ${r.city_name} :thermometer: ${r.temp} °C, ощущается как ${
               r.temp_feels_like
             } °C, :tornado_cloud: *${utils.weather.degToCompass(r.wind_deg)}* ${r.wind_speed} м/c${
-              utils.date.printDate(r.last_update) ? `. _Обновлено ${utils.date.printDate(r.last_update)}_` : ''
+              utils.date.printDate(r.last_update) ? `. _Обновлено ${utils.date.printDate(r.last_update)} по GMT_` : ''
             }`,
           },
         });

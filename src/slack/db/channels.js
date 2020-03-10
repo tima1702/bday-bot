@@ -8,7 +8,7 @@ Channels.init(
     name: DataTypes.STRING,
     name_normalized: DataTypes.STRING,
     is_channel: DataTypes.BOOLEAN,
-    wheather_city: DataTypes.STRING,
+    weather_city: DataTypes.STRING,
     creator: DataTypes.STRING,
     members: DataTypes.STRING,
   },
@@ -68,14 +68,14 @@ function add(channel_id, name, name_normalized, is_channel, creator, members = [
   });
 }
 
-function changeWeatherCity(channel_id, wheather_city) {
+function changeWeatherCity(channel_id, weather_city) {
   return new Promise((resolve, reject) => {
     Channels.findOne({ where: { channel_id } })
       .then((record) => {
         if (record) {
           record
             .update({
-              wheather_city,
+              weather_city,
             })
             .then(() => resolve('success'));
         } else {
@@ -89,7 +89,7 @@ function changeWeatherCity(channel_id, wheather_city) {
 function getWeatherCity(channel_id) {
   return new Promise((resolve) => {
     Channels.findOne({ where: { channel_id } })
-      .then((record) => resolve(record.toJSON().wheather_city || ''))
+      .then((record) => resolve(record.toJSON().weather_city || ''))
       .catch(() => resolve(''));
   });
 }

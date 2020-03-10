@@ -1,5 +1,6 @@
 const request = require('request');
 const env = require('../env');
+const utilsDate = require('./date');
 
 function get(cityName = '') {
   const options = {
@@ -34,7 +35,7 @@ function get(cityName = '') {
           if (dt) newData.dt = dt;
 
           if (newData) {
-            newData.last_update = Math.floor(new Date().getTime() / 1000);
+            newData.last_update = Math.floor(utilsDate.getCurrentDate().getTime() / 1000);
             resolve(newData);
           }
 

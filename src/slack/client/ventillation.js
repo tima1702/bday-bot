@@ -83,7 +83,7 @@ function checkScheduleAndSendMessage(currentTime) {
                   record.time_hour,
                   record.time_minute,
                   record.duration_minute,
-                )}*`,
+                )}* по GMT`,
               },
             });
 
@@ -95,7 +95,7 @@ function checkScheduleAndSendMessage(currentTime) {
 
             web.chat.scheduleMessage({
               channel: record.channel_id,
-              post_at: new Date().getTime() / 1000 + record.duration_minute * 60,
+              post_at: utils.date.getCurrentDate().getTime() / 1000 + record.duration_minute * 60,
               text: 'Проветривание завершено!',
               blocks: [
                 {
@@ -115,12 +115,12 @@ function checkScheduleAndSendMessage(currentTime) {
 }
 
 function checkScheduleAndSendMessageWatcher() {
-  let lastTime = new Date();
+  let lastTime = utils.date.getCurrentDate();
 
   checkScheduleAndSendMessage(lastTime);
 
   setInterval(() => {
-    const currentTime = new Date();
+    const currentTime = utils.date.getCurrentDate();
     if (currentTime.getHours() !== lastTime.getHours() || currentTime.getMinutes() !== lastTime.getMinutes()) {
       lastTime = currentTime;
       checkScheduleAndSendMessage(currentTime);

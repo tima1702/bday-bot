@@ -89,12 +89,12 @@ function updateAll() {
 }
 
 function updateAllWatcher() {
-  let lastTime = new Date();
+  let lastTime = utils.date.getCurrentDate();
 
   updateAll();
 
   setInterval(() => {
-    const currentTime = new Date();
+    const currentTime = utils.date.getCurrentDate();
     if (currentTime - lastTime >= env.getWeatherInterval()) {
       lastTime = currentTime;
       updateAll();

@@ -1,5 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const config = require('./config');
+const utils = require('../../utils');
 
 class Ventillation extends Model {}
 Ventillation.init(
@@ -80,7 +81,7 @@ function list(channel_id) {
 }
 
 function listRunSchedule(time_hour, time_minute) {
-  const currentDay = new Date().getDate();
+  const currentDay = utils.date.getCurrentDate().getDate();
   const whereObject = {
     where: {
       time_hour,

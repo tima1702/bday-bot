@@ -26,11 +26,11 @@ function successAdded(weekDays, hours, minutes, duration, notification) {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `${weekDays} в *${hours}:${minutes}* длительность: *${duration} минут*, окончание в *${utils.time.calcDuration(
+        text: `${weekDays} в *${hours}:${minutes}* по GMT длительность: *${duration} минут*, окончание в *${utils.time.calcDuration(
           hours,
           minutes,
           duration,
-        )}* - ${notification}`,
+        )}* по GMT - ${notification}`,
       },
     },
   ];
@@ -67,7 +67,7 @@ function createList(records, isAdmin, channelId) {
           record.time_hour,
           record.time_minute,
           record.duration_minute,
-        )}* - ${weekDays.join(', ')}`,
+        )}* по GMT - ${weekDays.join(', ')}`,
       },
     };
 
@@ -90,6 +90,16 @@ function createList(records, isAdmin, channelId) {
         type: 'divider',
       });
     }
+  });
+
+  blocks.unshift({
+    type: 'context',
+    elements: [
+      {
+        type: 'mrkdwn',
+        text: 'Время указано в GMT',
+      },
+    ],
   });
 
   return blocks;
@@ -214,6 +224,15 @@ function addModal(channelId) {
       emoji: true,
     },
     blocks: [
+      {
+        type: 'context',
+        elements: [
+          {
+            type: 'mrkdwn',
+            text: 'Указывайте время в GMT',
+          },
+        ],
+      },
       {
         type: 'input',
         block_id: 'weekDays',

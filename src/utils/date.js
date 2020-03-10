@@ -1,7 +1,12 @@
 const time = require('./time');
 
+function getCurrentDate(dt) {
+  const now = dt ? new Date(dt) : new Date();
+  return new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+}
+
 function printDate(dt) {
-  const date = new Date(dt * 1000);
+  const date = getCurrentDate(dt * 1000);
 
   return (
     `${time.timeToString(date.getDate())}.${time.timeToString(date.getMonth() + 1)} ${time.timeToString(
@@ -10,4 +15,4 @@ function printDate(dt) {
   );
 }
 
-module.exports = { printDate };
+module.exports = { printDate, getCurrentDate };
