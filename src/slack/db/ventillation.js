@@ -54,21 +54,18 @@ function add(channelId, notificationType, timeHour, timeMinute, durationMinute, 
       week_day_sunday: weekDays.includes('sunday'),
     };
 
-    Ventillation.sync().then(() => {
-      Ventillation.count({
-        where: item,
-      }).then((count) => {
-        if (count != 0) {
-          reject('Schedule already exists');
-        } else {
-          Ventillation.sync()
-            .then(() => Ventillation.create(item))
-            .then(() => {
-              resolve('ok');
-            })
-            .catch((e) => reject(e));
-        }
-      });
+    Ventillation.count({
+      where: item,
+    }).then((count) => {
+      if (count != 0) {
+        reject('Schedule already exists');
+      } else {
+        Ventillation.create(item)
+          .then(() => {
+            resolve('ok');
+          })
+          .catch((e) => reject(e));
+      }
     });
   });
 }

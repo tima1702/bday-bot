@@ -25,24 +25,19 @@ function add(channel_id, admin_id) {
       return;
     }
 
-    Admins.sync().then(() => {
-      Admins.count({ where: { channel_id, admin_id } }).then((count) => {
-        if (count !== 0) {
-          reject('Author already exists');
-        } else {
-          Admins.sync()
-            .then(() =>
-              Admins.create({
-                channel_id,
-                admin_id,
-              }),
-            )
-            .then(() => {
-              resolve();
-            })
-            .catch((e) => reject(e));
-        }
-      });
+    Admins.count({ where: { channel_id, admin_id } }).then((count) => {
+      if (count !== 0) {
+        reject('Author already exists');
+      } else {
+        Admins.create({
+          channel_id,
+          admin_id,
+        })
+          .then(() => {
+            resolve();
+          })
+          .catch((e) => reject(e));
+      }
     });
   });
 }

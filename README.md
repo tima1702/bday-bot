@@ -48,11 +48,13 @@ https://api.slack.com/apps/{Your APP ID}/oauth
 
 ## Slash path:
 
-`/slack/slash/ventillation?secret={SLACK_EVENT_SERVER_SECRET}` - command /ventillation
+`/slack/slash/ventillation/schedule?secret={SLACK_EVENT_SERVER_SECRET}` - command /ventillation_schedule
 
-`/slack/slash/admins?secret={SLACK_EVENT_SERVER_SECRET}` - command /admins
+`/slack/slash/ventillation/add?secret={SLACK_EVENT_SERVER_SECRET}` - command /ventillation_add
 
-`/slack/slash/settings?secret={SLACK_EVENT_SERVER_SECRET}` - command /settings
+`/slack/slash/settings/weather?secret={SLACK_EVENT_SERVER_SECRET}` - command /settings_weather
+
+`/slack/slash/settings/admin?secret={SLACK_EVENT_SERVER_SECRET}` - command /settings_admin
 
 `/slack/events?secret={SLACK_EVENT_SERVER_SECRET}` - Events URL
 
@@ -63,21 +65,29 @@ https://api.slack.com/apps/{Your APP ID}/oauth
 
 ## Добавить Slash команды в панели управления
 
-### /ventilation
+### /ventilation_schedule
 
-Request URL - https?: //{YOUR DOMAIN}/slack/slash/ventillation?secret=super_secret
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/ventillation/schedule?secret=super_secret
 
 Short Description - Ventilation Schedule
 
-Usage Hint - [schedule, add, delete]
+### /ventilation_add
 
-### /settings
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/ventillation/add?secret=super_secret
 
-Request URL - https?: //{YOUR DOMAIN}/slack/slash/settings?secret=super_secret
+Short Description - Ventilation Add
 
-Short Description - Settings
+### /settings_admin
 
-Usage Hint - [weather admin]
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/settings/admin?secret=super_secret
+
+Short Description - Settings Admin
+
+### /settings_weather
+
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/settings/weather?secret=super_secret
+
+Short Description - Settings Weather
 
 Добавить URL https?: //{YOUR DOMAIN}/slack/interactive?secret=super_secret на странице с настройками интерактивных компонентов
 

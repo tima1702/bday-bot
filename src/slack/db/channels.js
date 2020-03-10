@@ -42,28 +42,23 @@ function add(channel_id, name, name_normalized, is_channel, creator, members = [
       return;
     }
 
-    Channels.sync().then(() => {
-      Channels.count({ where: { channel_id } }).then((count) => {
-        if (count != 0) {
-          reject('Author already exists');
-        } else {
-          Channels.sync()
-            .then(() =>
-              Channels.create({
-                channel_id,
-                name,
-                name_normalized,
-                is_channel,
-                creator,
-                members: membersString,
-              }),
-            )
-            .then(() => {
-              resolve();
-            })
-            .catch((e) => reject(e));
-        }
-      });
+    Channels.count({ where: { channel_id } }).then((count) => {
+      if (count != 0) {
+        reject('Author already exists');
+      } else {
+        Channels.create({
+          channel_id,
+          name,
+          name_normalized,
+          is_channel,
+          creator,
+          members: membersString,
+        })
+          .then(() => {
+            resolve();
+          })
+          .catch((e) => reject(e));
+      }
     });
   });
 }
