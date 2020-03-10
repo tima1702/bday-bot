@@ -58,27 +58,30 @@ function updateAll() {
   return new Promise((resolve, reject) => {
     Weather.findAll()
       .then((records) => {
-        Promise.all([
-          ...records.map((element) =>
-            utils.weather
-              .get(element.toJSON().city_name)
-              .catch((e) => utils.logger.logDb().error('weather updateAll:', e)),
-          ),
-        ])
-          .then((data) => {
-            Promise.all([
-              ...data.map((item) => {
-                if (item && item.city_name) {
-                  return Weather.update(item, { where: { city_name: item.city_name } }).catch((e) =>
-                    utils.logger.logDb().error('weather updateAll:', e),
-                  );
-                }
-              }),
-            ])
-              .then(() => resolve('ok'))
-              .catch(reject);
-          })
-          .catch(reject);
+        if (records && records.length) {
+          Promise.all([
+            ...records.map((element) =>
+              utils.weather
+                .get(element.toJSON().city_name)
+                .catch((e) => utils.logger.logDb().error('weather updateAll:', e)),
+            ),
+          ])
+            .then((data) => {
+              Promise.all([
+                ...data.map((item) => {
+                  if (item && item.city_name) {
+                    return Weather.update(item, { where: { city_name: item.city_name } }).catch((e) =>
+                      utils.logger.logDb().error('weather updateAll:', e),
+                    );
+                  }
+                }),
+              ])
+                .then(() => resolve('ok'))
+                .catch(reject);
+            })
+            .catch(reject);
+        }
+        reject('not found');
       })
       .catch(reject);
   });

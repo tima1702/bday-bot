@@ -21,11 +21,11 @@ services:
 
   bot:
     image: exceedteam_bot
-    networks:
-      - web
-    restart: always
     volumes:
       - ./dbs:/app/dbs
       - ./log:/app/log
+    networks:
+      - web
+    restart: always
     ports: 
       - 3003:3003

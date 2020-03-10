@@ -75,33 +75,37 @@ router.post('/', function(req, res) {
           case 'modal-settings-weather-change':
             res.json(actionSettings.change(view, channelId, userId));
           case 'modal-add-administrator-privileges':
-            let key = '';
-            let webhookUrl = '';
+            if (view.state.values.user_select) {
+              let key = '';
+              let webhookUrl = '';
 
-            Object.keys(view.state.values.user_select).some((item) => {
-              if (item) {
-                const [findKey, findWebhookUrl] = item.split(':::');
-                if (findKey && findWebhookUrl) {
-                  key = item;
-                  webhookUrl = findWebhookUrl;
-                  return true;
+              console.log('view.state.values', view.state.values);
+
+              Object.keys(view.state.values.user_select).some((item) => {
+                if (item) {
+                  const [findKey, findWebhookUrl] = item.split(':::');
+                  if (findKey && findWebhookUrl) {
+                    key = item;
+                    webhookUrl = findWebhookUrl;
+                    return true;
+                  }
                 }
+              });
+
+              const selectedUserId =
+                (view.state.values.user_select[key] && view.state.values.user_select[key].selected_user) || '';
+
+              if (!userId || !selectedUserId || selectedUserId === userId) {
+                client.settings.errorAddCurrentUserAdmin(channelId, userId);
+                res.end();
+                return;
               }
-            });
+              client.settings.addUserAdmin(channelId, selectedUserId, userId, webhookUrl);
 
-            const selectedUserId =
-              (view.state.values.user_select[key] && view.state.values.user_select[key].selected_user) || '';
-
-            if (!userId || !selectedUserId || selectedUserId === userId) {
-              client.settings.errorAddCurrentUserAdmin(channelId, userId);
-              res.end();
-              return;
+              res.json({
+                response_action: 'clear',
+              });
             }
-            client.settings.addUserAdmin(channelId, selectedUserId, userId, webhookUrl);
-
-            res.json({
-              response_action: 'clear',
-            });
             return;
 
           default:
