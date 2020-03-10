@@ -79,12 +79,14 @@ router.post('/', function(req, res) {
             let webhookUrl = '';
 
             Object.keys(view.state.values.user_select).some((item) => {
-              if (item){const [findKey, findWebhookUrl] = item.split(':::');
-              if (findKey && findWebhookUrl) {
-                key = item;
-                webhookUrl = findWebhookUrl;
-                return true;
-              }}
+              if (item) {
+                const [findKey, findWebhookUrl] = item.split(':::');
+                if (findKey && findWebhookUrl) {
+                  key = item;
+                  webhookUrl = findWebhookUrl;
+                  return true;
+                }
+              }
             });
 
             const selectedUserId =
