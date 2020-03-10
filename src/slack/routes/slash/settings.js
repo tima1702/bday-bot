@@ -3,30 +3,21 @@ const uiBlocks = require('../../uiBlocks');
 const client = require('../../client');
 const router = express.Router();
 
-router.post('/', function(req, res) {
+router.post('/weather', function(req, res) {
   client.permission
     .checkAccess(req.body.channel_id, req.body.user_id)
     .then(() => {
-      if (req.body && req.body.text) {
-        switch (req.body.text) {
-          case 'admin':
-            uiBlocks.settings.admins
-              .manageList(req.body.channel_id, req.body.user_id)
-              .then((blocks) => res.json({ blocks }));
-            break;
+      client.settings.openChangeWeatherModal(req.body.channel_id, req.body.trigger_id);
+      res.end();
+    })
+    .catch((blocks) => res.json({ blocks }));
+});
 
-          case 'weather':
-            client.settings.openChangeWeatherModal(req.body.channel_id, req.body.trigger_id);
-            res.end();
-            break;
-
-          default:
-            res.json(uiBlocks.notFound.commandNotFound('settings', req.body.text));
-            break;
-        }
-        return;
-      }
-      res.json(uiBlocks.notFound.commandNotFound('settings'));
+router.post('/admin', function(req, res) {
+  client.permission
+    .checkAccess(req.body.channel_id, req.body.user_id)
+    .then(() => {
+      uiBlocks.settings.admins.manageList(req.body.channel_id, req.body.user_id).then((blocks) => res.json({ blocks }));
     })
     .catch((blocks) => res.json({ blocks }));
 });
