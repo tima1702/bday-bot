@@ -26,7 +26,6 @@ function successAdded(
     .add(channelId, notificationValue, timeHourValue, timeMinuteValue, durationMinuteValue, weekDaysValues)
     .then(() => {
       web.chat.postEphemeral({
-        attachments: [],
         channel: channelId,
         user: userId,
         text: '',
@@ -41,7 +40,6 @@ function successAdded(
     })
     .catch(() => {
       web.chat.postEphemeral({
-        attachments: [],
         channel: channelId,
         user: userId,
         text: '',

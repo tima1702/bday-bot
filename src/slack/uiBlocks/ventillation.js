@@ -138,17 +138,17 @@ function list(channelId, user_id) {
           .then(() => {
             const schedule = createList(records, true, channelId);
 
-            if (schedule && schedule.length) resolve(scheduleList(schedule));
+            if (schedule && schedule.length > 1) resolve(scheduleList(schedule));
             resolve(scheduleNotFound);
           })
           .catch(() => {
             const schedule = createList(records, false, channelId);
 
-            if (schedule && schedule.length) resolve(scheduleList(schedule));
+            if (schedule && schedule.length > 1) resolve(scheduleList(schedule));
             resolve(scheduleNotFound);
           });
       })
-      .catch((e) => {
+      .catch(() => {
         resolve([
           {
             type: 'section',

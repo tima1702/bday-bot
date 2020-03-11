@@ -1,0 +1,106 @@
+openapi: 3.0.0
+info:
+  title: "API"
+  version: "1.0.0"
+tags:
+  - name: Slack
+paths:
+  "/system/channels":
+    get:
+      tags:
+        - Slack
+      summary: Получить список каналов
+      responses:
+        200:
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - id
+                    - name
+                    - name_normalized
+                    - creator
+                    - members
+                  properties:
+                    id: 
+                      type: string
+                      description: Идентификатор канала
+                    name: 
+                      type: string
+                    name_normalized: 
+                      type: string
+                    creator: 
+                      type: string
+                      description: Идентификатор создателя
+                    members:
+                      type: array
+                      description: Список идентификаторов пользователей, находящихся в канале
+                      items:
+                        type: string
+
+        400:
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string
+
+
+
+  "/system/message":
+    post:
+      tags:
+        - Slack
+      summary: Отправить сообщение в канал
+      description: |
+        **Подробности:**
+
+        https://api.slack.com/methods/chat.postEphemeral
+
+        https://api.slack.com/methods/chat.postMessage
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - channel
+              properties:
+                channel:
+                  type: string
+                  description: Идентификатор канала в который нужно отправить сообщение
+                text:
+                  type: string
+                blocks:
+                  type: array
+                  items:
+                    type: object
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                ephemeral:
+                  type: boolean
+                user:
+                  type: string
+                  description: |
+                    Идентификатор пользователя, которому нужно отправить сообщение в канале (**Необходимо только если ephemeral=true**)
+
+      responses:
+        400:
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - message
+                properties:
+                  message:
+                    type: string

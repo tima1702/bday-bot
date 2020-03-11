@@ -1,6 +1,8 @@
 
 ![logo]
 
+Документация к system API /docs/redoc-static.html
+
 # DOCKER
 
 Для того чтобы запустить приложение, используя **docker** нужно:
@@ -55,6 +57,8 @@ https://api.slack.com/apps/{Your APP ID}/oauth
 `/slack/slash/settings/weather?secret={SLACK_EVENT_SERVER_SECRET}` - command /settings_weather
 
 `/slack/slash/settings/admin?secret={SLACK_EVENT_SERVER_SECRET}` - command /settings_admin
+
+`/slack/slash/weather?secret={SLACK_EVENT_SERVER_SECRET}` - command /weather
 
 `/slack/events?secret={SLACK_EVENT_SERVER_SECRET}` - Events URL
 

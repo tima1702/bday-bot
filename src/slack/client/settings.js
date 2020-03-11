@@ -38,7 +38,6 @@ function changeWeatherCityInChannel(channelId, newWeatherCity) {
 
 function errorAddCurrentUserAdmin(channelId, userId) {
   web.chat.postEphemeral({
-    attachments: [],
     channel: channelId,
     user: userId,
     text: '',
@@ -58,7 +57,6 @@ function addUserAdmin(channelId, selectedUserId, adminId, webhookUrl) {
       );
 
       web.chat.postMessage({
-        attachments: [],
         channel: selectedUserId,
         text: '',
         blocks: [
@@ -76,7 +74,6 @@ function addUserAdmin(channelId, selectedUserId, adminId, webhookUrl) {
     })
     .catch((e) => {
       web.chat.postEphemeral({
-        attachments: [],
         channel: channelId,
         user: adminId,
         text: '',
@@ -88,7 +85,6 @@ function addUserAdmin(channelId, selectedUserId, adminId, webhookUrl) {
 function removeAdmin(channelId, userId, needRemoveUserId, webhookUrl) {
   if (userId === needRemoveUserId) {
     web.chat.postEphemeral({
-      attachments: [],
       channel: channelId,
       user: userId,
       text: '',
@@ -108,7 +104,6 @@ function removeAdmin(channelId, userId, needRemoveUserId, webhookUrl) {
       );
 
       web.chat.postMessage({
-        attachments: [],
         channel: needRemoveUserId,
         text: '',
         blocks: [
@@ -124,7 +119,6 @@ function removeAdmin(channelId, userId, needRemoveUserId, webhookUrl) {
     })
     .catch(() =>
       web.chat.postEphemeral({
-        attachments: [],
         channel: channelId,
         user: userId,
         text: '',

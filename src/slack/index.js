@@ -13,6 +13,8 @@ function startServer() {
   app.use(express.text());
   app.use(express.urlencoded());
 
+  app.use('/system', routes.system);
+
   app.use(function(req, res, next) {
     if (req.query.secret && req.query.secret === env.getSlackEventServerSecret()) {
       next();
@@ -25,6 +27,8 @@ function startServer() {
   app.use('/slack/slash/ventillation', routes.slash.ventillation);
 
   app.use('/slack/slash/settings', routes.slash.settings);
+
+  app.use('/slack/slash/weather', routes.slash.weather);
 
   app.use('/slack/events', routes.events);
 

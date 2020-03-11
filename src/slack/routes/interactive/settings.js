@@ -8,7 +8,6 @@ function change(view, channelId, userId) {
 
   if (!newWeatherCity || !new RegExp('^[a-zA-Zа-яА-Я]+$').test(newWeatherCity)) {
     web.chat.postEphemeral({
-      attachments: [],
       channel: channelId,
       user: userId,
       text: '',
@@ -30,7 +29,6 @@ function change(view, channelId, userId) {
     .changeWeatherCityInChannel(channelId, newWeatherCity)
     .then((newCityName) => {
       web.chat.postEphemeral({
-        attachments: [],
         channel: channelId,
         user: userId,
         text: '',
@@ -47,7 +45,6 @@ function change(view, channelId, userId) {
     })
     .catch((e) => {
       web.chat.postEphemeral({
-        attachments: [],
         channel: channelId,
         user: userId,
         text: '',

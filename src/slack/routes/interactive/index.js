@@ -79,8 +79,6 @@ router.post('/', function(req, res) {
               let key = '';
               let webhookUrl = '';
 
-              console.log('view.state.values', view.state.values);
-
               Object.keys(view.state.values.user_select).some((item) => {
                 if (item) {
                   const [findKey, findWebhookUrl] = item.split(':::');
