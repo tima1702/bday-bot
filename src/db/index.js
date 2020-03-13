@@ -1,3 +1,9 @@
 const weather = require('./weather');
+const feedback = require('./feedback');
 
-module.exports = { weather };
+function init() {
+  weather.init();
+  feedback.init();
+}
+
+module.exports = { weather, feedback, init };

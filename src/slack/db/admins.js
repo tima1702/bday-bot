@@ -11,6 +11,10 @@ Admins.init(
   { sequelize: config.db(), modelName: 'admins' },
 );
 
+function init() {
+  return Admins.sync();
+}
+
 /**
  *
  *
@@ -70,4 +74,4 @@ function checkAccess(channel_id, admin_id) {
   });
 }
 
-module.exports = { add, list, checkAccess, remove };
+module.exports = { add, list, checkAccess, remove, init };

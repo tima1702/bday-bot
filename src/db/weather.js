@@ -17,6 +17,10 @@ Weather.init(
   { sequelize: config.db(), modelName: 'weather' },
 );
 
+function init() {
+  return Weather.sync();
+}
+
 /**
  *
  *
@@ -119,4 +123,4 @@ function get(city_name) {
   });
 }
 
-module.exports = { add, updateAll, get, updateAllWatcher };
+module.exports = { add, updateAll, get, updateAllWatcher, init };

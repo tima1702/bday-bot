@@ -21,6 +21,10 @@ Ventillation.init(
   { sequelize: config.db(), modelName: 'ventillation' },
 );
 
+function init() {
+  return Ventillation.sync();
+}
+
 /**
  *
  *
@@ -101,4 +105,4 @@ function remove(id) {
   return Ventillation.destroy({ where: { id } });
 }
 
-module.exports = { add, list, listRunSchedule, remove };
+module.exports = { add, list, listRunSchedule, remove, init };

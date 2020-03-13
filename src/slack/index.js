@@ -3,6 +3,7 @@ const express = require('express');
 const client = require('./client');
 const routes = require('./routes');
 const appDb = require('../db');
+const db = require('./db');
 
 const env = require('../env');
 
@@ -34,6 +35,8 @@ function startServer() {
 
   app.use('/slack/interactive', routes.interactive);
 
+  app.use('/slack/slash/feedback', routes.slash.feedback);
+
   app.listen(env.getSlackEventServerPort());
 }
 
@@ -45,7 +48,7 @@ function init() {
   client.channels.updateChannelsInfo();
 
   client.ventillation.checkScheduleAndSendMessageWatcher();
-
+  db.init();
   startServer();
   console.log('Slack Server is started');
   console.log('Port: ', env.getSlackEventServerPort());

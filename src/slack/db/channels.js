@@ -15,6 +15,10 @@ Channels.init(
   { sequelize: config.db(), modelName: 'channels' },
 );
 
+function init() {
+  return Channels.sync();
+}
+
 /**
  *
  *
@@ -97,4 +101,4 @@ function getAdminId(channel_id) {
   });
 }
 
-module.exports = { add, changeWeatherCity, getWeatherCity, getAdminId };
+module.exports = { add, changeWeatherCity, getWeatherCity, getAdminId, init };
