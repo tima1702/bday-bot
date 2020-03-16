@@ -18,7 +18,7 @@ function init() {
   return Feedback.sync();
 }
 
-function add(slackUserId, title, url, message) {
+function add(slackUserId, title, url, message, tags) {
   return new Promise((resolve, reject) => {
     if ((!slackUserId, !title, !url, !message)) {
       reject('invalid data');

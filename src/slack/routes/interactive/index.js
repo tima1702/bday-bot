@@ -1,9 +1,10 @@
+const actionVentillation = require('./ventillation');
+const actionFeedback = require('./feedback');
+const actionSettings = require('./settings');
 const express = require('express');
 const uiBlocks = require('../../uiBlocks');
 const axios = require('axios');
 const db = require('../../db');
-const actionVentillation = require('./ventillation');
-const actionSettings = require('./settings');
 const client = require('../../client');
 const router = express.Router();
 
@@ -99,6 +100,9 @@ router.post('/', function(req, res) {
         switch (callbackType) {
           case 'modal-ventillation-add':
             res.json(actionVentillation.add(view, channelId, userId));
+            return;
+          case 'modal-feedback-add':
+            res.json(actionFeedback.add(view, channelId, userId));
             return;
           case 'modal-settings-weather-change':
             res.json(actionSettings.change(view, channelId, userId));

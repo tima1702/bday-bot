@@ -1,6 +1,126 @@
 const utils = require('../../utils');
 const dbApp = require('../../db');
 
+function addModal(channelId) {
+  return new Promise((resolve) =>
+    resolve({
+      callback_id: `modal-feedback-add:${channelId}`,
+      type: 'modal',
+      title: {
+        type: 'plain_text',
+        text: 'Добавление отзыва',
+        emoji: true,
+      },
+      submit: {
+        type: 'plain_text',
+        text: 'Submit',
+        emoji: true,
+      },
+      close: {
+        type: 'plain_text',
+        text: 'Cancel',
+        emoji: true,
+      },
+      blocks: [
+        {
+          type: 'input',
+          block_id: 'feedbackTitle',
+          element: {
+            action_id: 'actionFeedbackTitle',
+            type: 'plain_text_input',
+            placeholder: {
+              type: 'plain_text',
+              text: 'Введите название',
+              emoji: true,
+            },
+          },
+          label: {
+            type: 'plain_text',
+            text: 'Название',
+            emoji: true,
+          },
+        },
+        {
+          type: 'input',
+          block_id: 'feedbackURL',
+          element: {
+            action_id: 'actionFeedbackURL',
+            type: 'plain_text_input',
+            placeholder: {
+              type: 'plain_text',
+              text: 'Введите URL статьи / видео',
+              emoji: true,
+            },
+          },
+          label: {
+            type: 'plain_text',
+            text: 'URL',
+            emoji: true,
+          },
+        },
+        {
+          type: 'input',
+          block_id: 'feedbackReview',
+          element: {
+            action_id: 'actionFeedbackReview',
+            type: 'plain_text_input',
+            multiline: true,
+            placeholder: {
+              type: 'plain_text',
+              text: 'Напишите отзыв',
+              emoji: true,
+            },
+          },
+          label: {
+            type: 'plain_text',
+            text: 'Отзыв',
+            emoji: true,
+          },
+        },
+        {
+          type: 'input',
+          block_id: 'feedbackTags',
+          element: {
+            action_id: 'actionFeedbackTags',
+            type: 'multi_static_select',
+            placeholder: {
+              type: 'plain_text',
+              text: 'Выберите теги',
+            },
+            options: [
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '*this is plain_text text*',
+                },
+                value: 'value-0',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '*this is plain_text text*',
+                },
+                value: 'value-1',
+              },
+              {
+                text: {
+                  type: 'plain_text',
+                  text: '*this is plain_text text*',
+                },
+                value: 'value-2',
+              },
+            ],
+          },
+          label: {
+            type: 'plain_text',
+            text: 'Теги',
+          },
+        },
+      ],
+    }),
+  );
+}
+
 function getPage(page = 0, user = '') {
   return new Promise((resolve) => {
     dbApp.feedback
@@ -203,4 +323,4 @@ function getPage(page = 0, user = '') {
   });
 }
 
-module.exports = { getPage };
+module.exports = { getPage, addModal };
