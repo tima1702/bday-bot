@@ -1,6 +1,6 @@
 const models = require('../models');
-
 const utils = require('../utils');
+const feedbackTags = require('./feedbackTags');
 
 const Feedback = models.Feedback;
 
@@ -8,14 +8,17 @@ function init() {
   return Feedback.sync();
 }
 
-function add(slackUserId, title, url, message, tags) {
+function add(slackUserId, title, url, message, tags = []) {
   return new Promise((resolve, reject) => {
-    if ((!slackUserId, !title, !url, !message)) {
+    if ((!slackUserId, !title, !url, !message, !tags)) {
       reject('invalid data');
       return;
     }
 
-    Feedback.create({ slackUserId, title, url, message })
+    const divider = '|';
+    const tagsString = tags && tags.length ? `${divider}${tags.join(divider)}${divider}` : [];
+
+    Feedback.create({ slackUserId, title, url, message, tags: tagsString })
       .then(resolve)
       .catch(reject);
   });
@@ -42,20 +45,51 @@ function getPage(page = 0, user = '') {
     ])
       .then((prom) => {
         const [records, count] = prom;
+        let newRecords = [];
 
-        const data = {
-          records: records.map((record) => {
-            const data = { ...record.dataValues };
-            data.date = utils.date.printDate(Math.floor(new Date(data.createdAt).getTime() / 1000), true);
-            delete data.updatedAt;
-            delete data.createdAt;
+        const uniqTags = [];
 
-            return data;
-          }),
-          count,
-        };
+        if (records && records.length) {
+          records.forEach((record) => {
+            const copyRecord = { ...record.dataValues };
 
-        resolve(data);
+            if (copyRecord.tags) {
+              const tags = [];
+
+              copyRecord.tags.split('|').forEach((tag) => {
+                const num = Number(tag);
+                if (tag && num) {
+                  tags.push(num);
+                  if (!uniqTags.includes(num)) uniqTags.push(num);
+                }
+              });
+
+              newRecords.push({ ...copyRecord, tags });
+            } else {
+              newRecords.push({ ...copyRecord, tags: [] });
+            }
+          });
+        }
+
+        feedbackTags.findByIds(uniqTags).then((tags) => {
+          const preparedTags = {};
+
+          tags.forEach((tag) => (preparedTags[tag.id] = tag.name));
+
+          const data = {
+            records: newRecords.map((record) => {
+              const data = { ...record, tags: record.tags.map((tag) => preparedTags[`${tag}`]) };
+              data.date = utils.date.printDate(Math.floor(new Date(data.createdAt).getTime() / 1000), true);
+              delete data.updatedAt;
+              delete data.createdAt;
+
+              return data;
+            }),
+            count,
+          };
+
+          resolve(data);
+        });
       })
       .catch(reject);
   });

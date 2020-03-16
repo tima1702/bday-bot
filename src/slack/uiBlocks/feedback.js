@@ -82,34 +82,12 @@ function addModal(channelId) {
           block_id: 'feedbackTags',
           element: {
             action_id: 'actionFeedbackTags',
-            type: 'multi_static_select',
+            type: 'multi_external_select',
             placeholder: {
               type: 'plain_text',
-              text: 'Выберите теги',
+              text: 'Выберите теги (начните ввод)',
             },
-            options: [
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '*this is plain_text text*',
-                },
-                value: 'value-0',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '*this is plain_text text*',
-                },
-                value: 'value-1',
-              },
-              {
-                text: {
-                  type: 'plain_text',
-                  text: '*this is plain_text text*',
-                },
-                value: 'value-2',
-              },
-            ],
+            min_query_length: 1,
           },
           label: {
             type: 'plain_text',
@@ -161,7 +139,9 @@ function getPage(page = 0, user = '') {
                 elements: [
                   {
                     type: 'mrkdwn',
-                    text: `*ID:* ${record.id} | *Теги:* JS, WEB | *Дата:* _${record.date} по GMT_`,
+                    text: `*ID:* ${record.id} | *Теги:* ${
+                      record.tags && record.tags.length ? record.tags.join(', ') : 'не указаны'
+                    } | *Дата:* _${record.date} по GMT_`,
                   },
                 ],
               },

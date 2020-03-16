@@ -5,8 +5,38 @@ const express = require('express');
 const uiBlocks = require('../../uiBlocks');
 const axios = require('axios');
 const db = require('../../db');
+const dbApp = require('../../../db');
 const client = require('../../client');
 const router = express.Router();
+
+router.post('/select', function(req, res) {
+  if (req && req.body && req.body.payload) {
+    const payload = JSON.parse(req.body.payload);
+
+    switch (payload.block_id) {
+      case 'feedbackTags':
+        dbApp.feedbackTags.findTags(payload.value || '').then((arr) => {
+          res.json({
+            options: arr.map((item) => ({
+              text: {
+                type: 'plain_text',
+                text: `${item.name || ''}`,
+              },
+              value: `${item.id || ''}`,
+            })),
+          });
+        });
+
+        return;
+
+      default:
+        res.json({
+          options: [],
+        });
+        return;
+    }
+  }
+});
 
 router.post('/', function(req, res) {
   if (req.body) {

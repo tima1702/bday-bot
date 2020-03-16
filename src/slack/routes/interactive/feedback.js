@@ -6,7 +6,7 @@ function add(view, channelId, userId) {
   const reviewValue = view.state.values.feedbackReview.actionFeedbackReview.value || '';
   const tagsValues = view.state.values.feedbackTags.actionFeedbackTags.selected_options.map((item) => item.value) || [];
 
-  dbApp.feedback.add(userId, titleValue, urlValue, reviewValue, JSON.stringify(tagsValues));
+  dbApp.feedback.add(userId, titleValue, urlValue, reviewValue, tagsValues);
 
   return {
     response_action: 'clear',
