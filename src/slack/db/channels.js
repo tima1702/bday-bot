@@ -1,22 +1,9 @@
-const { Model, DataTypes } = require('sequelize');
-const config = require('./config');
+const models = require('../../models');
 
-class Channels extends Model {}
-Channels.init(
-  {
-    channel_id: DataTypes.STRING,
-    name: DataTypes.STRING,
-    name_normalized: DataTypes.STRING,
-    is_channel: DataTypes.BOOLEAN,
-    weather_city: DataTypes.STRING,
-    creator: DataTypes.STRING,
-    members: DataTypes.STRING,
-  },
-  { sequelize: config.db(), modelName: 'channels' },
-);
+const Slack_Channels = models.Slack_Channels;
 
 function init() {
-  return Channels.sync();
+  return Slack_Channels.sync();
 }
 
 /**
@@ -46,11 +33,11 @@ function add(channel_id, name, name_normalized, is_channel, creator, members = [
       return;
     }
 
-    Channels.count({ where: { channel_id } }).then((count) => {
+    Slack_Channels.count({ where: { channel_id } }).then((count) => {
       if (count != 0) {
         reject('Author already exists');
       } else {
-        Channels.create({
+        Slack_Channels.create({
           channel_id,
           name,
           name_normalized,
@@ -69,7 +56,7 @@ function add(channel_id, name, name_normalized, is_channel, creator, members = [
 
 function changeWeatherCity(channel_id, weather_city) {
   return new Promise((resolve, reject) => {
-    Channels.findOne({ where: { channel_id } })
+    Slack_Channels.findOne({ where: { channel_id } })
       .then((record) => {
         if (record) {
           record
@@ -87,7 +74,7 @@ function changeWeatherCity(channel_id, weather_city) {
 
 function getWeatherCity(channel_id) {
   return new Promise((resolve) => {
-    Channels.findOne({ where: { channel_id } })
+    Slack_Channels.findOne({ where: { channel_id } })
       .then((record) => resolve(record.toJSON().weather_city || ''))
       .catch(() => resolve(''));
   });
@@ -95,7 +82,7 @@ function getWeatherCity(channel_id) {
 
 function getAdminId(channel_id) {
   return new Promise((resolve) => {
-    Channels.findOne({ where: { channel_id } })
+    Slack_Channels.findOne({ where: { channel_id } })
       .then((record) => resolve(record.toJSON().creator || ''))
       .catch(() => resolve(''));
   });

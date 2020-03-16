@@ -36,9 +36,7 @@ https://api.slack.com/apps/{Your APP ID}/oauth
 
 `WEATHER_API_TOKEN` - Токен API к сервису openweathermap.org (default: b6907d289e10d714a6e88b30761fae22)
 
-`SLACK_DB` - База данных для Slack (default: sqlite:./dbs/slack_database.db)
-
-`APP_DB` - База данных для приложения (default: sqlite:./dbs/app_database.db)
+`APP_DB` - База данных для приложения (default (SQLite3): dbs/app_database.sqlite3)
 
 `SLACK_API_TOKEN` - токен Slack
 

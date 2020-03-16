@@ -1,28 +1,10 @@
-const { Model, DataTypes } = require('sequelize');
-const config = require('./config');
 const utils = require('../../utils');
+const models = require('../../models');
 
-class Ventillation extends Model {}
-Ventillation.init(
-  {
-    channel_id: DataTypes.STRING,
-    notification_type: DataTypes.STRING,
-    time_hour: DataTypes.NUMBER,
-    time_minute: DataTypes.NUMBER,
-    duration_minute: DataTypes.NUMBER,
-    week_day_monday: DataTypes.BOOLEAN,
-    week_day_tuesday: DataTypes.BOOLEAN,
-    week_day_wednesday: DataTypes.BOOLEAN,
-    week_day_thursday: DataTypes.BOOLEAN,
-    week_day_friday: DataTypes.BOOLEAN,
-    week_day_saturday: DataTypes.BOOLEAN,
-    week_day_sunday: DataTypes.BOOLEAN,
-  },
-  { sequelize: config.db(), modelName: 'ventillation' },
-);
+const Slack_Ventillation = models.Slack_Ventillation;
 
 function init() {
-  return Ventillation.sync();
+  return Slack_Ventillation.sync();
 }
 
 /**
@@ -58,13 +40,13 @@ function add(channelId, notificationType, timeHour, timeMinute, durationMinute, 
       week_day_sunday: weekDays.includes('sunday'),
     };
 
-    Ventillation.count({
+    Slack_Ventillation.count({
       where: item,
     }).then((count) => {
       if (count != 0) {
         reject('Schedule already exists');
       } else {
-        Ventillation.create(item)
+        Slack_Ventillation.create(item)
           .then(() => {
             resolve('ok');
           })
@@ -75,7 +57,7 @@ function add(channelId, notificationType, timeHour, timeMinute, durationMinute, 
 }
 
 function list(channel_id) {
-  return Ventillation.findAll({
+  return Slack_Ventillation.findAll({
     where: { channel_id },
     order: [['time_hour', 'ASC'], ['time_minute', 'ASC']],
   });
@@ -98,11 +80,11 @@ function listRunSchedule(time_hour, time_minute) {
   if (currentDay === 6) whereObject.where.week_day_saturday = true;
   if (currentDay === 0) whereObject.where.week_day_sunday = true;
 
-  return Ventillation.findAll(whereObject);
+  return Slack_Ventillation.findAll(whereObject);
 }
 
 function remove(id) {
-  return Ventillation.destroy({ where: { id } });
+  return Slack_Ventillation.destroy({ where: { id } });
 }
 
 module.exports = { add, list, listRunSchedule, remove, init };

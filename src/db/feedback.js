@@ -1,18 +1,8 @@
-const { Model, DataTypes } = require('sequelize');
-const config = require('./config');
+const models = require('../models');
+
 const utils = require('../utils');
 
-class Feedback extends Model {}
-
-Feedback.init(
-  {
-    slackUserId: DataTypes.STRING,
-    title: DataTypes.STRING,
-    url: DataTypes.STRING,
-    message: DataTypes.STRING,
-  },
-  { sequelize: config.db(), modelName: 'feedback' },
-);
+const Feedback = models.Feedback;
 
 function init() {
   return Feedback.sync();

@@ -1,21 +1,8 @@
-const { Model, DataTypes } = require('sequelize');
-const config = require('./config');
 const utils = require('../utils');
 const env = require('../env');
+const models = require('../models');
 
-class Weather extends Model {}
-Weather.init(
-  {
-    city_name: DataTypes.STRING,
-    temp: DataTypes.NUMBER,
-    temp_feels_like: DataTypes.NUMBER,
-    wind_speed: DataTypes.NUMBER,
-    wind_deg: DataTypes.NUMBER,
-    dt: DataTypes.NUMBER,
-    last_update: DataTypes.NUMBER,
-  },
-  { sequelize: config.db(), modelName: 'weather' },
-);
+const Weather = models.Weather;
 
 function init() {
   return Weather.sync();
