@@ -51,50 +51,42 @@ router.post('/', function(req, res) {
       const userId = payload.user.id || '';
 
       if (payload.type === 'block_actions') {
+        const updatePageFeedback = (page, user, tag) => {
+          uiBlocks.feedback.getPage(page, user, tag, userId).then((blocks) => {
+            axios.post(payload.response_url, {
+              replace_original: 'true',
+              blocks,
+            });
+          });
+        };
+
         payload.actions.forEach((item) => {
           const [actionType, channelId] = (item.action_id && item.action_id.split(':')) || ['', ''];
-
           const additionalData = JSON.parse(item.action_id.replace(`${actionType}:`, '')) || {};
 
           switch (actionType) {
+            case 'deleteFeedback':
+              dbApp.feedback
+                .deleteById(item.value)
+                .then(() =>
+                  updatePageFeedback(additionalData.page || 0, additionalData.user || '', additionalData.tag || ''),
+                );
+              break;
+
             case 'clearFiltersPageInFeedBack':
-              uiBlocks.feedback.getPage(0, '', '').then((blocks) => {
-                axios.post(payload.response_url, {
-                  replace_original: 'true',
-                  blocks,
-                });
-              });
+              updatePageFeedback(0, '', '');
               break;
 
             case 'userPageInFeedBack':
-              uiBlocks.feedback.getPage(0, item.selected_user || '', additionalData.tag || '').then((blocks) => {
-                axios.post(payload.response_url, {
-                  replace_original: 'true',
-                  blocks,
-                });
-              });
+              updatePageFeedback(0, item.selected_user || '', additionalData.tag || '');
               break;
 
             case 'nextPageInFeedBack':
-              uiBlocks.feedback
-                .getPage(additionalData.page || 0, additionalData.user || '', additionalData.tag || '')
-                .then((blocks) => {
-                  axios.post(payload.response_url, {
-                    replace_original: 'true',
-                    blocks,
-                  });
-                });
+              updatePageFeedback(additionalData.page || 0, additionalData.user || '', additionalData.tag || '');
               break;
 
             case 'tagInFeedBack':
-              uiBlocks.feedback
-                .getPage(0, additionalData.user || '', item.selected_option.value || '')
-                .then((blocks) => {
-                  axios.post(payload.response_url, {
-                    replace_original: 'true',
-                    blocks,
-                  });
-                });
+              updatePageFeedback(0, additionalData.user || '', item.selected_option.value || '');
               break;
 
             case 'remove_ventillation':

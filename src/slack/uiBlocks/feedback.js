@@ -99,10 +99,88 @@ function addModal(channelId) {
   );
 }
 
-function getPage(page = 0, user = '', tag = '') {
+function feedbackItem(record, count, userId, page, user, tag) {
+  const newBlocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `*${record.title}* ${record.url ? `<${record.url}|Открыть статью>` : '_URL не указан_'}`,
+      },
+    },
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `${record.slackUserId ? `<@${record.slackUserId}>` : ''} ${record.message || ''}`,
+      },
+    },
+    {
+      type: 'context',
+      elements: [
+        {
+          type: 'mrkdwn',
+          text: `*ID:* ${record.id} | *Теги:* ${
+            record.tags && record.tags.length ? record.tags.join(', ') : 'не указаны'
+          } | *Дата:* _${record.date} по GMT_`,
+        },
+      ],
+    },
+  ];
+
+  if (userId && record.slackUserId === userId) {
+    const maxPageAfterDelete = Math.ceil((count - 1) / 3) - 1;
+    newBlocks.push({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: 'Вы можете удалить этот отзыв:',
+      },
+      accessory: {
+        action_id: `deleteFeedback:${JSON.stringify({
+          page: maxPageAfterDelete < page ? maxPageAfterDelete : page,
+          tag,
+          user,
+        })}`,
+        type: 'button',
+        text: {
+          type: 'plain_text',
+          text: 'Удалить',
+          emoji: true,
+        },
+        confirm: {
+          title: {
+            type: 'plain_text',
+            text: 'Вы уверены?',
+          },
+          text: {
+            type: 'mrkdwn',
+            text: `Вы действительно хотите удалить отзыв к статье: *_${record.title}_*?`,
+          },
+          confirm: {
+            type: 'plain_text',
+            text: 'Да',
+          },
+          deny: {
+            type: 'plain_text',
+            text: 'Стоп! Я передумал!',
+          },
+        },
+        style: 'danger',
+        value: `${record.id}`,
+      },
+    });
+  }
+
+  return newBlocks;
+}
+
+function getPage(page = 0, user = '', tag = '', userId = '') {
   return new Promise((resolve) => {
-    Promise.all([dbApp.feedback.getPage(page, user, tag).catch(() => resolve([])), dbApp.feedbackTags.getNameById(tag)])
-    .then(([{ records, count }, tagName]) => {
+    Promise.all([
+      dbApp.feedback.getPage(page, user, tag).catch(() => resolve([])),
+      dbApp.feedbackTags.getNameById(tag),
+    ]).then(([{ records, count }, tagName]) => {
       const blocks = [
         {
           type: 'section',
@@ -117,38 +195,11 @@ function getPage(page = 0, user = '', tag = '') {
       ];
 
       if (count > 0) {
-        records.forEach((record) => {
-          blocks.push(
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `*${record.title}* ${record.url ? `<${record.url}|Открыть статью>` : '_URL не указан_'}`,
-              },
-            },
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `${record.slackUserId ? `<@${record.slackUserId}>` : ''} ${record.message || ''}`,
-              },
-            },
-            {
-              type: 'context',
-              elements: [
-                {
-                  type: 'mrkdwn',
-                  text: `*ID:* ${record.id} | *Теги:* ${
-                    record.tags && record.tags.length ? record.tags.join(', ') : 'не указаны'
-                  } | *Дата:* _${record.date} по GMT_`,
-                },
-              ],
-            },
-            {
-              type: 'divider',
-            },
-          );
-        });
+        records.forEach((record) =>
+          blocks.push(...feedbackItem(record, count, userId, page, user, tag), {
+            type: 'divider',
+          }),
+        );
 
         blocks.push(
           {

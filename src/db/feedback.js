@@ -24,6 +24,14 @@ function add(slackUserId, title, url, message, tags = []) {
   });
 }
 
+function deleteById(id) {
+  return new Promise((resolve) => {
+    Feedback.destroy({ where: { id } })
+      .then(() => resolve())
+      .catch(() => resolve());
+  });
+}
+
 function getPage(page = 0, user = '', tag = '') {
   return new Promise((resolve, reject) => {
     const pageSize = 3;
@@ -112,4 +120,4 @@ function getPage(page = 0, user = '', tag = '') {
   });
 }
 
-module.exports = { add, init, getPage };
+module.exports = { add, init, getPage, deleteById };
