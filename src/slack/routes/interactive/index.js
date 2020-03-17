@@ -1,6 +1,7 @@
 const actionVentillation = require('./ventillation');
 const actionFeedback = require('./feedback');
 const actionSettings = require('./settings');
+const actionTag = require('./tag');
 const express = require('express');
 const uiBlocks = require('../../uiBlocks');
 const axios = require('axios');
@@ -62,7 +63,12 @@ router.post('/', function(req, res) {
 
         payload.actions.forEach((item) => {
           const [actionType, channelId] = (item.action_id && item.action_id.split(':')) || ['', ''];
-          const additionalData = JSON.parse(item.action_id.replace(`${actionType}:`, '')) || {};
+          let additionalData = {};
+          try {
+            additionalData = JSON.parse(item.action_id.replace(`${actionType}:`, ''));
+          } catch (e) {
+            additionalData = {};
+          }
 
           switch (actionType) {
             case 'deleteFeedback':
@@ -140,6 +146,8 @@ router.post('/', function(req, res) {
             return;
           case 'modal-settings-weather-change':
             res.json(actionSettings.change(view, channelId, userId));
+          case 'modal-settings-tag-add':
+            res.json(actionTag.add(view, channelId, userId));
           case 'modal-add-administrator-privileges':
             if (view.state.values.user_select) {
               let key = '';

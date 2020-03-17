@@ -382,8 +382,6 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
 
       console.log('BYTES: ', utils.byteCount.string(JSON.stringify({ blocks })));
 
-      console.log('..........blocks', JSON.stringify(blocks, null, '\t'));
-
       resolve(blocks);
     });
   });

@@ -12,6 +12,10 @@ function openChangeWeatherModal(channel_id, trigger_id) {
   });
 }
 
+function openAddTagModal(channel_id, trigger_id) {
+  web.views.open({ trigger_id, view: uiBlocks.settings.tag.addModal(channel_id) });
+}
+
 function openAddAdministartorModal(channel_id, trigger_id, webhookUrl) {
   web.views.open({ trigger_id, view: uiBlocks.settings.admins.addModal(channel_id, webhookUrl) });
 }
@@ -134,4 +138,5 @@ module.exports = {
   errorAddCurrentUserAdmin,
   addUserAdmin,
   removeAdmin,
+  openAddTagModal,
 };
