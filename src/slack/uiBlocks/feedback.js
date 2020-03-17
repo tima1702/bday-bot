@@ -99,81 +99,86 @@ function addModal(channelId) {
   );
 }
 
-function getPage(page = 0, user = '') {
+function getPage(page = 0, user = '', tag = '') {
   return new Promise((resolve) => {
-    dbApp.feedback
-      .getPage(page, user)
-      .then(({ records, count, distinct }) => {
-        const blocks = [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Отзывы*',
-            },
+    Promise.all([dbApp.feedback.getPage(page, user, tag).catch(() => resolve([])), dbApp.feedbackTags.getNameById(tag)])
+    .then(([{ records, count }, tagName]) => {
+      const blocks = [
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: '*Отзывы*',
           },
-          {
-            type: 'divider',
-          },
-        ];
+        },
+        {
+          type: 'divider',
+        },
+      ];
 
-        if (count > 0) {
-          records.forEach((record) => {
-            blocks.push(
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: `*${record.title}* ${record.url ? `<${record.url}|Открыть статью>` : '_URL не указан_'}`,
-                },
-              },
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: `${record.slackUserId ? `<@${record.slackUserId}>` : ''} ${record.message || ''}`,
-                },
-              },
-              {
-                type: 'context',
-                elements: [
-                  {
-                    type: 'mrkdwn',
-                    text: `*ID:* ${record.id} | *Теги:* ${
-                      record.tags && record.tags.length ? record.tags.join(', ') : 'не указаны'
-                    } | *Дата:* _${record.date} по GMT_`,
-                  },
-                ],
-              },
-              {
-                type: 'divider',
-              },
-            );
-          });
-
+      if (count > 0) {
+        records.forEach((record) => {
           blocks.push(
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `*${record.title}* ${record.url ? `<${record.url}|Открыть статью>` : '_URL не указан_'}`,
+              },
+            },
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `${record.slackUserId ? `<@${record.slackUserId}>` : ''} ${record.message || ''}`,
+              },
+            },
             {
               type: 'context',
               elements: [
                 {
                   type: 'mrkdwn',
-                  text: `Всего отзывов: ${count} | Текущая страница: ${page + 1}`,
+                  text: `*ID:* ${record.id} | *Теги:* ${
+                    record.tags && record.tags.length ? record.tags.join(', ') : 'не указаны'
+                  } | *Дата:* _${record.date} по GMT_`,
                 },
               ],
             },
-            { type: 'divider' },
-          );
-        } else {
-          blocks.push({
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Пользователь <@${user}> еще не оставлял отзывов.*`,
+            {
+              type: 'divider',
             },
-          });
-        }
+          );
+        });
+
+        blocks.push(
+          {
+            type: 'context',
+            elements: [
+              {
+                type: 'mrkdwn',
+                text: `Всего отзывов: ${count} | Текущая страница: ${page + 1}`,
+              },
+            ],
+          },
+          { type: 'divider' },
+        );
+      } else {
+        let text = '';
+        if (user) text = `*Пользователь <@${user}> еще не оставлял отзывов.*`;
+        if (tag) text = `*Тег _${tagName}_ еще не закреплен не за одним отзывом*`;
+        if (user && tag) text = `*Пользователь <@${user}> еще не оставлял отзывов c тегом _${tagName}_*`;
 
         blocks.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text,
+          },
+        });
+      }
+
+      blocks.push(
+        {
           type: 'section',
           text: {
             type: 'mrkdwn',
@@ -181,12 +186,40 @@ function getPage(page = 0, user = '') {
           },
           accessory: {
             type: 'users_select',
-            action_id: `userPageInFeedBack:${JSON.stringify({ page })}`,
+            action_id: `userPageInFeedBack:${JSON.stringify({ page, tag })}`,
             placeholder: {
               type: 'plain_text',
               text: 'Все',
               emoji: true,
             },
+          },
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: 'Выберите тег',
+          },
+          block_id: 'feedbackTags',
+          accessory: {
+            type: 'external_select',
+            action_id: `tagInFeedBack:${JSON.stringify({ page, tag, user })}`,
+            placeholder: {
+              type: 'plain_text',
+              text: 'Все',
+              emoji: true,
+            },
+            min_query_length: 1,
+          },
+        },
+      );
+
+      if (user || tag) {
+        blocks.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: '*Установлены фильтры:*',
           },
         });
 
@@ -195,111 +228,111 @@ function getPage(page = 0, user = '') {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Установлены фильтры:*',
+              text: `Выбран пользователь <@${user}>`,
             },
-          });
-
-          if (user) {
-            blocks.push({
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `Выбран пользователь <@${user}>`,
-              },
-            });
-          }
-
-          blocks.push({
-            type: 'actions',
-            block_id: 'clearfiltersPageInFeedBack:',
-            elements: [
-              {
-                style: 'danger',
-                type: 'button',
-                text: { type: 'plain_text', text: 'Сбросить фильтры' },
-                value: 'cancel',
-                action_id: 'clearFiltersPageInFeedBack:{}',
-              },
-            ],
           });
         }
 
-        if (count > 3) {
-          const countPages = Math.ceil(count / 3);
-
-          const buttons = [
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: '*Навигация:*',
-              },
+        if (tag) {
+          blocks.push({
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `Выбран тег *${tagName}*`,
             },
+          });
+        }
+
+        blocks.push({
+          type: 'actions',
+          block_id: 'clearfiltersPageInFeedBack:',
+          elements: [
             {
-              type: 'actions',
-              block_id: `changePageInFeedBack:`,
-              elements: [],
+              style: 'danger',
+              type: 'button',
+              text: { type: 'plain_text', text: 'Сбросить фильтры' },
+              value: 'cancel',
+              action_id: 'clearFiltersPageInFeedBack:{}',
             },
-          ];
+          ],
+        });
+      }
 
-          if (page > 0) {
-            buttons[1].elements.push(
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: 'На первую',
-                },
-                value: 'cancel',
-                action_id: `nextPageInFeedBack:${JSON.stringify({ page: 0, user, first: true })}`,
-              },
-              {
-                type: 'button',
-                text: {
-                  type: 'plain_text',
-                  text: '<<< Сюда',
-                },
-                value: 'cancel',
-                action_id: `nextPageInFeedBack:${JSON.stringify({ page: page - 1, user })}`,
-              },
-            );
-          }
+      if (count > 3) {
+        const countPages = Math.ceil(count / 3);
 
-          if (page + 1 < countPages) {
-            buttons[1].elements.push({
+        const buttons = [
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: '*Навигация:*',
+            },
+          },
+          {
+            type: 'actions',
+            block_id: `changePageInFeedBack:`,
+            elements: [],
+          },
+        ];
+
+        if (page > 0) {
+          buttons[1].elements.push(
+            {
               type: 'button',
               text: {
                 type: 'plain_text',
-                text: 'Туда >>>',
+                text: 'На первую',
               },
               value: 'cancel',
-              action_id: `nextPageInFeedBack:${JSON.stringify({ page: page + 1, user })}`,
-            });
-
-            buttons[1].elements.push({
+              action_id: `nextPageInFeedBack:${JSON.stringify({ page: 0, user, first: true, tag })}`,
+            },
+            {
               type: 'button',
               text: {
                 type: 'plain_text',
-                text: 'На последнюю',
+                text: '<<< Сюда',
               },
               value: 'cancel',
-              action_id: `nextPageInFeedBack:${JSON.stringify({ page: countPages - 1, user, last: true })}`,
-            });
-          }
-
-          blocks.push(
-            {
-              type: 'divider',
+              action_id: `nextPageInFeedBack:${JSON.stringify({ page: page - 1, user, tag })}`,
             },
-            ...buttons,
           );
         }
 
-        console.log('BYTES: ', utils.byteCount.string(JSON.stringify({ blocks })));
+        if (page + 1 < countPages) {
+          buttons[1].elements.push({
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'Туда >>>',
+            },
+            value: 'cancel',
+            action_id: `nextPageInFeedBack:${JSON.stringify({ page: page + 1, user, tag })}`,
+          });
 
-        resolve(blocks);
-      })
-      .catch(() => resolve([]));
+          buttons[1].elements.push({
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'На последнюю',
+            },
+            value: 'cancel',
+            action_id: `nextPageInFeedBack:${JSON.stringify({ page: countPages - 1, user, last: true, tag })}`,
+          });
+        }
+
+        blocks.push(
+          {
+            type: 'divider',
+          },
+          ...buttons,
+        );
+      }
+
+      console.log('BYTES: ', utils.byteCount.string(JSON.stringify({ blocks })));
+
+      resolve(blocks);
+    });
   });
 }
 

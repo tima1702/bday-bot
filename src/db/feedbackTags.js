@@ -34,4 +34,19 @@ function findTags(tagName) {
   });
 }
 
-module.exports = { init, findTags, add, findByIds };
+function getNameById(id = 0) {
+  return new Promise((resolve) => {
+    if (id) {
+      Feedback_Tags.findOne({
+        where: { id },
+        attributes: ['name'],
+      })
+        .then((record) => resolve(record.dataValues.name || 'not_found'))
+        .catch(() => resolve('not_found'));
+    } else {
+      resolve('not_found');
+    }
+  });
+}
+
+module.exports = { init, findTags, add, findByIds, getNameById };

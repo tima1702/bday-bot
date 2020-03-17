@@ -54,9 +54,11 @@ router.post('/', function(req, res) {
         payload.actions.forEach((item) => {
           const [actionType, channelId] = (item.action_id && item.action_id.split(':')) || ['', ''];
 
+          const additionalData = JSON.parse(item.action_id.replace(`${actionType}:`, '')) || {};
+
           switch (actionType) {
             case 'clearFiltersPageInFeedBack':
-              uiBlocks.feedback.getPage(0, '').then((blocks) => {
+              uiBlocks.feedback.getPage(0, '', '').then((blocks) => {
                 axios.post(payload.response_url, {
                   replace_original: 'true',
                   blocks,
@@ -65,7 +67,7 @@ router.post('/', function(req, res) {
               break;
 
             case 'userPageInFeedBack':
-              uiBlocks.feedback.getPage(0, item.selected_user || '').then((blocks) => {
+              uiBlocks.feedback.getPage(0, item.selected_user || '', additionalData.tag || '').then((blocks) => {
                 axios.post(payload.response_url, {
                   replace_original: 'true',
                   blocks,
@@ -74,13 +76,25 @@ router.post('/', function(req, res) {
               break;
 
             case 'nextPageInFeedBack':
-              let objPagination = JSON.parse(item.action_id.replace(`${actionType}:`, '')) || {};
-              uiBlocks.feedback.getPage(objPagination.page || 0, objPagination.user || '').then((blocks) => {
-                axios.post(payload.response_url, {
-                  replace_original: 'true',
-                  blocks,
+              uiBlocks.feedback
+                .getPage(additionalData.page || 0, additionalData.user || '', additionalData.tag || '')
+                .then((blocks) => {
+                  axios.post(payload.response_url, {
+                    replace_original: 'true',
+                    blocks,
+                  });
                 });
-              });
+              break;
+
+            case 'tagInFeedBack':
+              uiBlocks.feedback
+                .getPage(0, additionalData.user || '', item.selected_option.value || '')
+                .then((blocks) => {
+                  axios.post(payload.response_url, {
+                    replace_original: 'true',
+                    blocks,
+                  });
+                });
               break;
 
             case 'remove_ventillation':
@@ -95,7 +109,6 @@ router.post('/', function(req, res) {
                   );
                 })
                 .catch(() => {});
-
               break;
 
             case 'add_administrator_privileges':
@@ -115,7 +128,6 @@ router.post('/', function(req, res) {
               client.settings.removeAdmin(channelId, userId, needDeleteUserId, payload.response_url);
 
               res.end();
-
               break;
 
             default:

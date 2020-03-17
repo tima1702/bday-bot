@@ -24,7 +24,7 @@ function add(slackUserId, title, url, message, tags = []) {
   });
 }
 
-function getPage(page = 0, user = '') {
+function getPage(page = 0, user = '', tag = '') {
   return new Promise((resolve, reject) => {
     const pageSize = 3;
 
@@ -35,8 +35,25 @@ function getPage(page = 0, user = '') {
       order: [['id', 'DESC']],
     };
 
-    if (user) {
-      request.where.slackUserId = user;
+    if (user && tag) {
+      request.where = {
+        [models.Sequelize.Op.and]: {
+          slackUserId: user,
+          tags: {
+            [models.Sequelize.Op.like]: `%|${tag}|%`,
+          },
+        },
+      };
+    } else {
+      if (user) {
+        request.where.slackUserId = user;
+      }
+
+      if (tag) {
+        request.where.tags = {
+          [models.Sequelize.Op.like]: `%|${tag}|%`,
+        };
+      }
     }
 
     Promise.all([
