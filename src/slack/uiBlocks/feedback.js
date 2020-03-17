@@ -214,7 +214,7 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
           { type: 'divider' },
         );
       } else {
-        let text = '';
+        let text = '*Не найдено ни одного отзыва!*';
         if (user) text = `*Пользователь <@${user}> еще не оставлял отзывов.*`;
         if (tag) text = `*Тег _${tagName}_ еще не закреплен не за одним отзывом*`;
         if (user && tag) text = `*Пользователь <@${user}> еще не оставлял отзывов c тегом _${tagName}_*`;
@@ -381,6 +381,8 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
       }
 
       console.log('BYTES: ', utils.byteCount.string(JSON.stringify({ blocks })));
+
+      console.log('..........blocks', JSON.stringify(blocks, null, '\t'));
 
       resolve(blocks);
     });
