@@ -1,9 +1,8 @@
-const { WebClient } = require('@slack/web-api');
-const env = require('../../../env');
-const web = new WebClient(env.getSlackToken());
+const api = require('../../api');
 
 function getList(req, res) {
-  web.channels
+  api.channels
+    .list()
     .list()
     .then((data) => {
       if (!data || !data.ok) res.status(400).end();

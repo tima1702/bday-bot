@@ -1,4 +1,5 @@
 const uiBlocks = require('../uiBlocks');
+const uiItems = require('../uiItems');
 const db = require('../db');
 
 function checkAccess(channel_id, user_id) {
@@ -11,26 +12,15 @@ function checkAccess(channel_id, user_id) {
           db.admins.list(channel_id).then((admins) => {
             reject([
               ...uiBlocks.permission.accessDeniedBlocks(),
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: '*Обратитесь за доступом к одному из администраторов:*',
-                },
-              },
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: admins.map((userId) => `<@${userId}>`).join(' '),
-                },
-              },
+              uiItems.text.markdownSection('*Обратитесь за доступом к одному из администраторов:*'),
+              uiItems.text.markdownSection(admins.map((userId) => `<@${userId}>`).join(' ')),
             ]);
           });
         });
+    } else {
+      reject(false);
     }
   });
-  reject(false);
 }
 
 module.exports = { checkAccess };

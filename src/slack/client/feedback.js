@@ -1,10 +1,8 @@
-const env = require('../../env');
 const uiBlocks = require('../uiBlocks');
-const { WebClient } = require('@slack/web-api');
-const web = new WebClient(env.getSlackToken());
+const api = require('../api');
 
 function openAddModal(channelId, triggerId) {
-  uiBlocks.feedback.addModal(channelId).then((view) => web.views.open({ trigger_id: triggerId, view }));
+  uiBlocks.feedback.addModal(channelId).then((view) => api.views.open(triggerId, view));
 }
 
 module.exports = { openAddModal };

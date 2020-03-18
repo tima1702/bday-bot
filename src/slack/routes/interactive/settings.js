@@ -1,64 +1,31 @@
 const client = require('../../client');
-const { WebClient } = require('@slack/web-api');
-const env = require('../../../env');
-const web = new WebClient(env.getSlackToken());
+const api = require('../../api');
+const uiItems = require('../../uiItems');
 
 function change(view, channelId, userId) {
   const newWeatherCity = view.state.values.changeWeatherCity.actionChangeWeatherCity.value || '';
 
   if (!newWeatherCity || !new RegExp('^[a-zA-Zа-яА-Я]+$').test(newWeatherCity)) {
-    web.chat.postEphemeral({
-      channel: channelId,
-      user: userId,
-      text: '',
-      blocks: [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `*Ошибка поиска города, к вводу разрешены только буквы*!`,
-          },
-        },
-      ],
-    });
-
+    api.chat.postEphemeral(channelId, userId, '', [
+      uiItems.text.markdownSection('*Ошибка поиска города, к вводу разрешены только буквы*!'),
+    ]);
     return;
   }
 
   client.settings
     .changeWeatherCityInChannel(channelId, newWeatherCity)
     .then((newCityName) => {
-      web.chat.postEphemeral({
-        channel: channelId,
-        user: userId,
-        text: '',
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Город ${newCityName} успешно добавлен / изменен!*`,
-            },
-          },
-        ],
-      });
+      api.chat.postEphemeral(channelId, userId, '', [
+        uiItems.text.markdownSection(`*Город ${newCityName} успешно добавлен / изменен!*`),
+      ]);
     })
-    .catch((e) => {
-      web.chat.postEphemeral({
-        channel: channelId,
-        user: userId,
-        text: '',
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Ошибка добавления / изменения города${e === 'not_found' ? ' ' + newWeatherCity : ''}!*`,
-            },
-          },
-        ],
-      });
-    });
+    .catch((e) =>
+      api.chat.postEphemeral(channelId, userId, '', [
+        uiItems.text.markdownSection(
+          `*Ошибка добавления / изменения города${e === 'not_found' ? ' ' + newWeatherCity : ''}!*`,
+        ),
+      ]),
+    );
 
   return {
     response_action: 'clear',

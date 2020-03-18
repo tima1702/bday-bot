@@ -4,99 +4,82 @@ const uiItems = require('../uiItems');
 
 function addModal(channelId) {
   return new Promise((resolve) =>
-    resolve({
-      callback_id: `modal-feedback-add:${channelId}`,
-      type: 'modal',
-      title: {
-        type: 'plain_text',
-        text: 'Добавление отзыва',
-        emoji: true,
-      },
-      submit: {
-        type: 'plain_text',
-        text: 'Submit',
-        emoji: true,
-      },
-      close: {
-        type: 'plain_text',
-        text: 'Cancel',
-        emoji: true,
-      },
-      blocks: [
-        {
-          type: 'input',
-          block_id: 'feedbackTitle',
-          element: {
-            action_id: 'actionFeedbackTitle',
-            type: 'plain_text_input',
-            placeholder: {
+    resolve(
+      uiItems.modal.create(
+        'Добавление отзыва',
+        `modal-feedback-add:${channelId}`,
+        [
+          {
+            type: 'input',
+            block_id: 'feedbackTitle',
+            element: {
+              action_id: 'actionFeedbackTitle',
+              type: 'plain_text_input',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Введите название',
+              },
+            },
+            label: {
               type: 'plain_text',
-              text: 'Введите название',
-              emoji: true,
+              text: 'Название',
             },
           },
-          label: {
-            type: 'plain_text',
-            text: 'Название',
-            emoji: true,
-          },
-        },
-        {
-          type: 'input',
-          block_id: 'feedbackURL',
-          element: {
-            action_id: 'actionFeedbackURL',
-            type: 'plain_text_input',
-            placeholder: {
+          {
+            type: 'input',
+            block_id: 'feedbackURL',
+            element: {
+              action_id: 'actionFeedbackURL',
+              type: 'plain_text_input',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Введите URL статьи / видео',
+              },
+            },
+            label: {
               type: 'plain_text',
-              text: 'Введите URL статьи / видео',
-              emoji: true,
+              text: 'URL',
             },
           },
-          label: {
-            type: 'plain_text',
-            text: 'URL',
-            emoji: true,
-          },
-        },
-        {
-          type: 'input',
-          block_id: 'feedbackReview',
-          element: {
-            action_id: 'actionFeedbackReview',
-            type: 'plain_text_input',
-            multiline: true,
-            placeholder: {
+          {
+            type: 'input',
+            block_id: 'feedbackReview',
+            element: {
+              action_id: 'actionFeedbackReview',
+              type: 'plain_text_input',
+              multiline: true,
+              placeholder: {
+                type: 'plain_text',
+                text: 'Напишите отзыв',
+              },
+            },
+            label: {
               type: 'plain_text',
-              text: 'Напишите отзыв',
-              emoji: true,
+              text: 'Отзыв',
             },
           },
-          label: {
-            type: 'plain_text',
-            text: 'Отзыв',
-            emoji: true,
-          },
-        },
-        {
-          type: 'input',
-          block_id: 'feedbackTags',
-          element: {
-            action_id: 'actionFeedbackTags',
-            type: 'multi_external_select',
-            placeholder: {
-              type: 'plain_text',
-              text: 'Выберите теги (начните ввод)',
+          {
+            type: 'input',
+            block_id: 'feedbackTags',
+            element: {
+              action_id: 'actionFeedbackTags',
+              type: 'multi_external_select',
+              placeholder: {
+                type: 'plain_text',
+                text: 'Выберите теги (начните ввод)',
+              },
+              min_query_length: 1,
             },
-            min_query_length: 1,
+            label: {
+              type: 'plain_text',
+              text: 'Теги',
+            },
           },
-          label: {
-            type: 'plain_text',
-            text: 'Теги',
-          },
-        },
-      ],
-    }),
+        ],
+        {},
+        'Добавить',
+      ),
+    ),
   );
 }
 
@@ -121,46 +104,28 @@ function feedbackItem(record, count, userId, page, user, tag) {
 
   if (userId && record.slackUserId === userId) {
     const maxPageAfterDelete = Math.ceil((count - 1) / 3) - 1;
-    newBlocks.push({
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: 'Вы можете удалить этот отзыв:',
-      },
-      accessory: {
-        action_id: `deleteFeedback:${JSON.stringify({
-          page: maxPageAfterDelete < page ? maxPageAfterDelete : page,
-          tag,
-          user,
-        })}`,
-        type: 'button',
-        text: {
-          type: 'plain_text',
-          text: 'Удалить',
-          emoji: true,
-        },
-        confirm: {
-          title: {
-            type: 'plain_text',
-            text: 'Вы уверены?',
-          },
+    newBlocks.push(
+      uiItems.text.markdownSection('Вы можете удалить этот отзыв:', {
+        accessory: {
+          action_id: `deleteFeedback:${JSON.stringify({
+            page: maxPageAfterDelete < page ? maxPageAfterDelete : page,
+            tag,
+            user,
+          })}`,
+          type: 'button',
           text: {
-            type: 'mrkdwn',
-            text: `Вы действительно хотите удалить отзыв к статье: *_${record.title}_*?`,
-          },
-          confirm: {
             type: 'plain_text',
-            text: 'Да',
+            text: 'Удалить',
           },
-          deny: {
-            type: 'plain_text',
-            text: 'Стоп! Я передумал!',
-          },
+          confirm: uiItems.confirm(
+            'Вы уверены?',
+            `Вы действительно хотите удалить отзыв к статье: *_${record.title}_*?`,
+          ),
+          style: 'danger',
+          value: `${record.id}`,
         },
-        style: 'danger',
-        value: `${record.id}`,
-      },
-    });
+      }),
+    );
   }
 
   return newBlocks;
@@ -201,28 +166,18 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
       }
 
       blocks.push(
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: 'Выберите пользователя',
-          },
+        uiItems.text.markdownSection('Выберите пользователя', {
           accessory: {
             type: 'users_select',
             action_id: `userPageInFeedBack:${JSON.stringify({ page, tag })}`,
             placeholder: {
               type: 'plain_text',
               text: 'Все',
-              emoji: true,
             },
           },
-        },
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: 'Выберите тег',
-          },
+        }),
+
+        uiItems.text.markdownSection('Выберите тег', {
           block_id: 'feedbackTags',
           accessory: {
             type: 'external_select',
@@ -230,11 +185,10 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
             placeholder: {
               type: 'plain_text',
               text: 'Все',
-              emoji: true,
             },
             min_query_length: 1,
           },
-        },
+        }),
       );
 
       if (user || tag) {
@@ -252,13 +206,7 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
           type: 'actions',
           block_id: 'clearfiltersPageInFeedBack:',
           elements: [
-            {
-              style: 'danger',
-              type: 'button',
-              text: { type: 'plain_text', text: 'Сбросить фильтры' },
-              value: 'cancel',
-              action_id: 'clearFiltersPageInFeedBack:{}',
-            },
+            uiItems.actions.button('Сбросить фильтры', 'cancel', 'clearFiltersPageInFeedBack:{}', { style: 'danger' }),
           ],
         });
       }
@@ -277,47 +225,53 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
 
         if (page > 0) {
           buttons[1].elements.push(
-            {
-              type: 'button',
-              text: {
-                type: 'plain_text',
-                text: 'На первую',
-              },
-              value: 'cancel',
-              action_id: `nextPageInFeedBack:${JSON.stringify({ page: 0, user, first: true, tag })}`,
-            },
-            {
-              type: 'button',
-              text: {
-                type: 'plain_text',
-                text: '<<< Сюда',
-              },
-              value: 'cancel',
-              action_id: `nextPageInFeedBack:${JSON.stringify({ page: page - 1, user, tag })}`,
-            },
+            uiItems.actions.button(
+              'На первую',
+              'cancel',
+              `nextPageInFeedBack:${JSON.stringify({
+                page: 0,
+                user,
+                first: true,
+                tag,
+              })}`,
+            ),
+            uiItems.actions.button(
+              '<<< Сюда',
+              'cancel',
+              `nextPageInFeedBack:${JSON.stringify({
+                page: page - 1,
+                user,
+                tag,
+              })}`,
+            ),
           );
         }
 
         if (page + 1 < countPages) {
-          buttons[1].elements.push({
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'Туда >>>',
-            },
-            value: 'cancel',
-            action_id: `nextPageInFeedBack:${JSON.stringify({ page: page + 1, user, tag })}`,
-          });
+          buttons[1].elements.push(
+            uiItems.actions.button(
+              'Туда >>>',
+              'cancel',
+              `nextPageInFeedBack:${JSON.stringify({
+                page: page + 1,
+                user,
+                tag,
+              })}`,
+            ),
+          );
 
-          buttons[1].elements.push({
-            type: 'button',
-            text: {
-              type: 'plain_text',
-              text: 'На последнюю',
-            },
-            value: 'cancel',
-            action_id: `nextPageInFeedBack:${JSON.stringify({ page: countPages - 1, user, last: true, tag })}`,
-          });
+          buttons[1].elements.push(
+            uiItems.actions.button(
+              'На последнюю',
+              'cancel',
+              `nextPageInFeedBack:${JSON.stringify({
+                page: countPages - 1,
+                user,
+                last: true,
+                tag,
+              })}`,
+            ),
+          );
         }
 
         blocks.push(uiItems.divider(), ...buttons);

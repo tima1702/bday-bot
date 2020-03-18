@@ -63,7 +63,6 @@ function createList(records, isAdmin, channelId) {
         text: {
           type: 'plain_text',
           text: 'Удалить',
-          emoji: true,
         },
         style: 'danger',
         value: `${JSON.stringify({ record_id: record.id })}`,
@@ -75,15 +74,7 @@ function createList(records, isAdmin, channelId) {
     }
   });
 
-  blocks.unshift({
-    type: 'context',
-    elements: [
-      {
-        type: 'mrkdwn',
-        text: 'Время указано в GMT',
-      },
-    ],
-  });
+  blocks.unshift(uiItems.text.markdownContext('Время указано в GMT'));
 
   return blocks;
 }
@@ -155,184 +146,148 @@ function addModal(channelId) {
     { label: 'Вс', value: 'sunday' },
   ];
 
-  return {
-    type: 'modal',
-    callback_id: `modal-ventillation-add:${channelId}`,
-    title: {
-      type: 'plain_text',
-      text: 'Добавление проветривания',
-      emoji: true,
+  return uiItems.modal.create('Добавление проветривания', `modal-ventillation-add:${channelId}`, [
+    {
+      type: 'context',
+      elements: [
+        {
+          type: 'mrkdwn',
+          text: 'Указывайте время в GMT',
+        },
+      ],
     },
-    submit: {
-      type: 'plain_text',
-      text: 'Сохранить',
-      emoji: true,
+    {
+      type: 'input',
+      block_id: 'weekDays',
+      element: {
+        type: 'multi_static_select',
+        placeholder: {
+          type: 'plain_text',
+          text: 'Выберите дни недели',
+        },
+        action_id: 'actionWeekDays',
+        options: days.map((item) => ({
+          text: {
+            type: 'plain_text',
+            text: item.label,
+          },
+          value: item.value,
+        })),
+      },
+      label: {
+        type: 'plain_text',
+        text: 'Дни недели',
+      },
     },
-    close: {
-      type: 'plain_text',
-      text: 'Отмена',
-      emoji: true,
+    {
+      type: 'input',
+      block_id: 'timeHour',
+      element: {
+        type: 'static_select',
+        placeholder: {
+          type: 'plain_text',
+          text: 'Выберите час',
+        },
+        action_id: 'actionTimeHour',
+        options: hours.map((item) => ({
+          text: {
+            type: 'plain_text',
+            text: item.label,
+          },
+          value: item.value,
+        })),
+      },
+      label: {
+        type: 'plain_text',
+        text: 'Часы',
+      },
     },
-    blocks: [
-      {
-        type: 'context',
-        elements: [
+    {
+      type: 'input',
+      block_id: 'timeMinute',
+      element: {
+        type: 'static_select',
+        placeholder: {
+          type: 'plain_text',
+          text: 'Выберите минуты',
+        },
+        action_id: 'actionTimeMinute',
+        options: minutes.map((item) => ({
+          text: {
+            type: 'plain_text',
+            text: item.label,
+          },
+          value: item.value,
+        })),
+      },
+      label: {
+        type: 'plain_text',
+        text: 'Минуты',
+      },
+    },
+    {
+      type: 'input',
+      block_id: 'durationMinute',
+      element: {
+        type: 'static_select',
+        placeholder: {
+          type: 'plain_text',
+          text: 'Выберите минуты',
+        },
+        action_id: 'actionDurationMinute',
+        options: durationMinutes.map((item) => ({
+          text: {
+            type: 'plain_text',
+            text: item.label,
+          },
+          value: item.value,
+        })),
+      },
+      label: {
+        type: 'plain_text',
+        text: 'Продолжительность',
+      },
+    },
+    {
+      type: 'input',
+      block_id: 'notification',
+      element: {
+        type: 'static_select',
+        placeholder: {
+          type: 'plain_text',
+          text: 'Выберите тип уведомления',
+        },
+        action_id: 'actionNotification',
+        options: [
           {
-            type: 'mrkdwn',
-            text: 'Указывайте время в GMT',
+            text: {
+              type: 'plain_text',
+              text: 'Простое сообщение',
+            },
+            value: 'simple',
+          },
+          {
+            text: {
+              type: 'plain_text',
+              text: '@here',
+            },
+            value: 'here',
+          },
+          {
+            text: {
+              type: 'plain_text',
+              text: '@channel',
+            },
+            value: 'channel',
           },
         ],
       },
-      {
-        type: 'input',
-        block_id: 'weekDays',
-        element: {
-          type: 'multi_static_select',
-          placeholder: {
-            type: 'plain_text',
-            text: 'Выберите дни недели',
-            emoji: true,
-          },
-          action_id: 'actionWeekDays',
-          options: days.map((item) => ({
-            text: {
-              type: 'plain_text',
-              text: item.label,
-              emoji: true,
-            },
-            value: item.value,
-          })),
-        },
-        label: {
-          type: 'plain_text',
-          text: 'Дни недели',
-          emoji: true,
-        },
+      label: {
+        type: 'plain_text',
+        text: 'Уведомление',
       },
-      {
-        type: 'input',
-        block_id: 'timeHour',
-        element: {
-          type: 'static_select',
-          placeholder: {
-            type: 'plain_text',
-            text: 'Выберите час',
-            emoji: true,
-          },
-          action_id: 'actionTimeHour',
-          options: hours.map((item) => ({
-            text: {
-              type: 'plain_text',
-              text: item.label,
-              emoji: true,
-            },
-            value: item.value,
-          })),
-        },
-        label: {
-          type: 'plain_text',
-          text: 'Часы',
-          emoji: true,
-        },
-      },
-      {
-        type: 'input',
-        block_id: 'timeMinute',
-        element: {
-          type: 'static_select',
-          placeholder: {
-            type: 'plain_text',
-            text: 'Выберите минуты',
-            emoji: true,
-          },
-          action_id: 'actionTimeMinute',
-          options: minutes.map((item) => ({
-            text: {
-              type: 'plain_text',
-              text: item.label,
-              emoji: true,
-            },
-            value: item.value,
-          })),
-        },
-        label: {
-          type: 'plain_text',
-          text: 'Минуты',
-          emoji: true,
-        },
-      },
-      {
-        type: 'input',
-        block_id: 'durationMinute',
-        element: {
-          type: 'static_select',
-          placeholder: {
-            type: 'plain_text',
-            text: 'Выберите минуты',
-            emoji: true,
-          },
-          action_id: 'actionDurationMinute',
-          options: durationMinutes.map((item) => ({
-            text: {
-              type: 'plain_text',
-              text: item.label,
-              emoji: true,
-            },
-            value: item.value,
-          })),
-        },
-        label: {
-          type: 'plain_text',
-          text: 'Продолжительность',
-          emoji: true,
-        },
-      },
-      {
-        type: 'input',
-        block_id: 'notification',
-        element: {
-          type: 'static_select',
-          placeholder: {
-            type: 'plain_text',
-            text: 'Выберите тип уведомления',
-            emoji: true,
-          },
-          action_id: 'actionNotification',
-          options: [
-            {
-              text: {
-                type: 'plain_text',
-                text: 'Простое сообщение',
-                emoji: true,
-              },
-              value: 'simple',
-            },
-            {
-              text: {
-                type: 'plain_text',
-                text: '@here',
-                emoji: true,
-              },
-              value: 'here',
-            },
-            {
-              text: {
-                type: 'plain_text',
-                text: '@channel',
-                emoji: true,
-              },
-              value: 'channel',
-            },
-          ],
-        },
-        label: {
-          type: 'plain_text',
-          text: 'Уведомление',
-          emoji: true,
-        },
-      },
-    ],
-  };
+    },
+  ]);
 }
 
 module.exports = { addModal, successAdded, dublicateSchedule, list, typesNotification, typesWeekDays };

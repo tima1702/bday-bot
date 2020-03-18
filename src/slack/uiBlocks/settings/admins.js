@@ -5,24 +5,18 @@ function manageList(channel_id, admin_id) {
   return new Promise((resolve) => {
     const blocks = [
       uiItems.text.markdownSection('*Управление администраторами*'),
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: 'Для добавления нажмите на кнопку: ',
-        },
+      uiItems.text.markdownSection('Для добавления нажмите на кнопку: ', {
         accessory: {
           type: 'button',
           action_id: `add_administrator_privileges:${channel_id}`,
           text: {
             type: 'plain_text',
             text: 'Добавить администратора',
-            emoji: true,
           },
           style: 'primary',
           value: 'add',
         },
-      },
+      }),
     ];
 
     Promise.all([db.admins.list(channel_id), db.channels.getAdminId(channel_id)]).then((values) => {
@@ -60,7 +54,6 @@ function manageList(channel_id, admin_id) {
             text: {
               type: 'plain_text',
               text: 'Снять полномочия',
-              emoji: true,
             },
             style: 'danger',
             value: currentAdminId,
@@ -79,25 +72,10 @@ function manageList(channel_id, admin_id) {
 }
 
 function addModal(channelId, webhookUrl) {
-  return {
-    type: 'modal',
-    callback_id: `modal-add-administrator-privileges:${channelId}`,
-    title: {
-      type: 'plain_text',
-      text: 'Добавить администратора',
-      emoji: true,
-    },
-    submit: {
-      type: 'plain_text',
-      text: 'Добавить',
-      emoji: true,
-    },
-    close: {
-      type: 'plain_text',
-      text: 'Отмена',
-      emoji: true,
-    },
-    blocks: [
+  return uiItems.modal.create(
+    'Добавить администратора',
+    `modal-add-administrator-privileges:${channelId}`,
+    [
       {
         block_id: `user_select`,
         type: 'input',
@@ -107,17 +85,17 @@ function addModal(channelId, webhookUrl) {
           placeholder: {
             type: 'plain_text',
             text: 'Выберите пользователя',
-            emoji: true,
           },
         },
         label: {
           type: 'plain_text',
           text: 'Пользователь',
-          emoji: true,
         },
       },
     ],
-  };
+    {},
+    'Добавить',
+  );
 }
 
 function errorAddAdminCurrentUser() {
@@ -129,7 +107,7 @@ function errorRemoveAdminCurrentUser() {
 }
 
 function errorAddAdmin(userId) {
-  return [uiItems.text.markdownSection(`*Ошибка добавления пользователя <@${userId}>! в список администраторв*`)];
+  return [uiItems.text.markdownSection(`*Ошибка добавления пользователя <@${userId}>! в список администраторов.*`)];
 }
 
 function errorRemoveAdmin(userId) {

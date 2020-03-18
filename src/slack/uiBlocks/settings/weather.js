@@ -9,25 +9,10 @@ const uiItems = require('../../uiItems');
  */
 function changeModal(channelId) {
   return new Promise((resolve) => {
-    const modal = {
-      type: 'modal',
-      callback_id: `modal-settings-weather-change:${channelId}`,
-      title: {
-        type: 'plain_text',
-        text: 'Изменение города погоды',
-        emoji: true,
-      },
-      submit: {
-        type: 'plain_text',
-        text: 'Добавить / Изменить',
-        emoji: true,
-      },
-      close: {
-        type: 'plain_text',
-        text: 'Отмена',
-        emoji: true,
-      },
-      blocks: [
+    const modal = uiItems.modal.create(
+      'Изменение города погоды',
+      `modal-settings-weather-change:${channelId}`,
+      [
         {
           type: 'input',
           block_id: 'changeWeatherCity',
@@ -42,11 +27,12 @@ function changeModal(channelId) {
           label: {
             type: 'plain_text',
             text: 'Город',
-            emoji: true,
           },
         },
       ],
-    };
+      {},
+      'Добавить / Изменить',
+    );
 
     db.channels
       .getWeatherCity(channelId)

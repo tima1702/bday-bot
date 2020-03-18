@@ -1,11 +1,8 @@
 const db = require('../db');
-const { WebClient } = require('@slack/web-api');
-const env = require('../../env');
+const api = require('../api');
 
 function updateChannelsInfo() {
-  const web = new WebClient(env.getSlackToken());
-
-  web.channels
+  api.channels
     .list()
     .then((resp) => {
       if (resp && resp.ok && resp.channels && resp.channels.length) {

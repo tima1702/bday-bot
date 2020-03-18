@@ -18,22 +18,10 @@ function errorAdded(tagName) {
  * @param {String} channelId
  */
 function addModal(channelId) {
-  return {
-    type: 'modal',
-    callback_id: `modal-settings-tag-add:${channelId}`,
-    title: {
-      type: 'plain_text',
-      text: 'Добавление нового тега',
-    },
-    submit: {
-      type: 'plain_text',
-      text: 'Добавить',
-    },
-    close: {
-      type: 'plain_text',
-      text: 'Отмена',
-    },
-    blocks: [
+  return uiItems.modal.create(
+    'Добавление нового тега',
+    `modal-settings-tag-add:${channelId}`,
+    [
       uiItems.text.markdownSection(
         '*Внимание! Удалить или изменить тег будет невозможно!* _и он будет сохранен в нижнем регистре_',
       ),
@@ -54,7 +42,9 @@ function addModal(channelId) {
         },
       },
     ],
-  };
+    {},
+    'Добавить',
+  );
 }
 
 module.exports = { addModal, successAdded, errorAddedDuplicate, errorAdded };

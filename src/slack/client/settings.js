@@ -2,22 +2,21 @@ const axios = require('axios');
 const uiBlocks = require('../uiBlocks');
 const dbApp = require('../../db');
 const db = require('../db');
-const { WebClient } = require('@slack/web-api');
-const env = require('../../env');
-const web = new WebClient(env.getSlackToken());
+const api = require('../api');
+const uiItems = require('../uiItems');
 
 function openChangeWeatherModal(channel_id, trigger_id) {
   uiBlocks.settings.weather.changeModal(channel_id).then((view) => {
-    web.views.open({ trigger_id, view });
+    api.views.open(trigger_id, view);
   });
 }
 
 function openAddTagModal(channel_id, trigger_id) {
-  web.views.open({ trigger_id, view: uiBlocks.settings.tag.addModal(channel_id) });
+  api.views.open(trigger_id, uiBlocks.settings.tag.addModal(channel_id));
 }
 
 function openAddAdministartorModal(channel_id, trigger_id, webhookUrl) {
-  web.views.open({ trigger_id, view: uiBlocks.settings.admins.addModal(channel_id, webhookUrl) });
+  api.views.open(trigger_id, uiBlocks.settings.admins.addModal(channel_id, webhookUrl));
 }
 
 function changeWeatherCityInChannel(channelId, newWeatherCity) {
@@ -41,12 +40,7 @@ function changeWeatherCityInChannel(channelId, newWeatherCity) {
 }
 
 function errorAddCurrentUserAdmin(channelId, userId) {
-  web.chat.postEphemeral({
-    channel: channelId,
-    user: userId,
-    text: '',
-    blocks: uiBlocks.settings.admins.errorAddAdminCurrentUser(),
-  });
+  api.chat.postEphemeral(channelId, userId, '', uiBlocks.settings.admins.errorAddAdminCurrentUser());
 }
 
 function addUserAdmin(channelId, selectedUserId, adminId, webhookUrl) {
@@ -60,40 +54,18 @@ function addUserAdmin(channelId, selectedUserId, adminId, webhookUrl) {
         }),
       );
 
-      web.chat.postMessage({
-        channel: selectedUserId,
-        text: '',
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `<@${adminId}> выдал Вам полномочия администратора в канале <#${channelId}>`,
-            },
-          },
-        ],
-      });
-
-      web.dialog;
+      api.chat.postMessage(selectedUserId, '', [
+        uiItems.text.markdownSection(`<@${adminId}> выдал Вам полномочия администратора в канале <#${channelId}>`),
+      ]);
     })
     .catch((e) => {
-      web.chat.postEphemeral({
-        channel: channelId,
-        user: adminId,
-        text: '',
-        blocks: uiBlocks.settings.admins.errorAddAdmin(selectedUserId),
-      });
+      api.chat.postEphemeral(channelId, adminId, '', uiBlocks.settings.admins.errorAddAdmin(selectedUserId));
     });
 }
 
 function removeAdmin(channelId, userId, needRemoveUserId, webhookUrl) {
   if (userId === needRemoveUserId) {
-    web.chat.postEphemeral({
-      channel: channelId,
-      user: userId,
-      text: '',
-      blocks: uiBlocks.settings.admins.errorRemoveAdminCurrentUser(),
-    });
+    api.chat.postEphemeral(channelId, userId, '', uiBlocks.settings.admins.errorRemoveAdminCurrentUser());
     return;
   }
 
@@ -107,27 +79,12 @@ function removeAdmin(channelId, userId, needRemoveUserId, webhookUrl) {
         }),
       );
 
-      web.chat.postMessage({
-        channel: needRemoveUserId,
-        text: '',
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `<@${userId}> снял с Вас полномочия администратора в канале <#${channelId}>`,
-            },
-          },
-        ],
-      });
+      api.chat.postMessage(needRemoveUserId, '', [
+        uiItems.text.markdownSection(`<@${userId}> снял с Вас полномочия администратора в канале <#${channelId}>`),
+      ]);
     })
     .catch(() =>
-      web.chat.postEphemeral({
-        channel: channelId,
-        user: userId,
-        text: '',
-        blocks: uiBlocks.settings.admins.errorRemoveAdmin(needRemoveUserId),
-      }),
+      api.chat.postEphemeral(channelId, userId, '', uiBlocks.settings.admins.errorRemoveAdmin(needRemoveUserId)),
     );
 }
 
