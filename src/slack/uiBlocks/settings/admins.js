@@ -1,15 +1,10 @@
 const db = require('../../db');
+const uiItems = require('../../uiItems');
 
 function manageList(channel_id, admin_id) {
   return new Promise((resolve) => {
     const blocks = [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: '*Управление администраторами*',
-        },
-      },
+      uiItems.text.markdownSection('*Управление администраторами*'),
       {
         type: 'section',
         text: {
@@ -45,28 +40,18 @@ function manageList(channel_id, admin_id) {
 
       admins.forEach((currentAdminId, i) => {
         if (currentAdminId === admin_id) {
-          blocks.push({
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Вы*${channelCreator === currentAdminId ? ' (Создатель канала)' : ''}`,
-            },
-          });
+          blocks.push(
+            uiItems.text.markdownSection(`*Вы*${channelCreator === currentAdminId ? ' (Создатель канала)' : ''}`),
+          );
           if (admins.length - 1 !== i) {
-            blocks.push({
-              type: 'divider',
-            });
+            blocks.push(uiItems.divider());
           }
           return;
         }
 
-        const block = {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `<@${currentAdminId}>${channelCreator === currentAdminId ? ' (Создатель канала)' : ''}`,
-          },
-        };
+        const block = uiItems.text.markdownSection(
+          `<@${currentAdminId}>${channelCreator === currentAdminId ? ' (Создатель канала)' : ''}`,
+        );
 
         if (channelCreator !== currentAdminId)
           block.accessory = {
@@ -84,9 +69,7 @@ function manageList(channel_id, admin_id) {
         blocks.push(block);
 
         if (admins.length - 1 !== i) {
-          blocks.push({
-            type: 'divider',
-          });
+          blocks.push(uiItems.divider());
         }
       });
 
@@ -138,62 +121,24 @@ function addModal(channelId, webhookUrl) {
 }
 
 function errorAddAdminCurrentUser() {
-  return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Ошибка добавления в список администраторов! Себя добавить нельзя!*',
-      },
-    },
-  ];
+  return [uiItems.text.markdownSection('*Ошибка добавления в список администраторов! Себя добавить нельзя!*')];
 }
 
 function errorRemoveAdminCurrentUser() {
-  return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Ошибка снятия полномочий администратора! С себя снять нельзя!*',
-      },
-    },
-  ];
+  return [uiItems.text.markdownSection('*Ошибка снятия полномочий администратора! С себя снять нельзя!*')];
 }
 
 function errorAddAdmin(userId) {
-  return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `*Ошибка добавления пользователя <@${userId}>! в список администраторв*`,
-      },
-    },
-  ];
+  return [uiItems.text.markdownSection(`*Ошибка добавления пользователя <@${userId}>! в список администраторв*`)];
 }
 
 function errorRemoveAdmin(userId) {
-  return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `*Ошибка снятия полномочий администратора с пользователя <@${userId}>!*`,
-      },
-    },
-  ];
+  return [uiItems.text.markdownSection(`*Ошибка снятия полномочий администратора с пользователя <@${userId}>!*`)];
 }
 
 function successAddUser(userId) {
   return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `Пользователь <@${userId}> успешно добавлен в список администраторов в этом канале`,
-      },
-    },
+    uiItems.text.markdownSection(`Пользователь <@${userId}> успешно добавлен в список администраторов в этом канале`),
   ];
 }
 

@@ -1,5 +1,6 @@
 const utils = require('../../utils');
 const db = require('../db');
+const uiItems = require('../uiItems');
 
 const typesNotification = { simple: 'Простое сообщение', here: '@here', channel: '@channel' };
 
@@ -15,24 +16,14 @@ const typesWeekDays = {
 
 function successAdded(weekDays, hours, minutes, duration, notification) {
   return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Проветривание успешно добавлено!*',
-      },
-    },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `${weekDays} в *${hours}:${minutes}* по GMT длительность: *${duration} минут*, окончание в *${utils.time.calcDuration(
-          hours,
-          minutes,
-          duration,
-        )}* по GMT - ${notification}`,
-      },
-    },
+    uiItems.text.markdownSection('*Проветривание успешно добавлено!*'),
+    uiItems.text.markdownSection(
+      `${weekDays} в *${hours}:${minutes}* по GMT длительность: *${duration} минут*, окончание в *${utils.time.calcDuration(
+        hours,
+        minutes,
+        duration,
+      )}* по GMT - ${notification}`,
+    ),
   ];
 }
 
@@ -53,23 +44,17 @@ function createList(records, isAdmin, channelId) {
       if (record.week_day_sunday) weekDays.push('Вс');
     }
 
-    const data = {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `${utils.emoji.numberToEmoji(i + 1)} ${
-          typesNotification[record.notification_type]
-        } в *${utils.time.timeToString(record.time_hour)}:${utils.time.timeToString(
-          record.time_minute,
-        )}* продолжительность *${utils.time.timeToString(
-          record.duration_minute,
-        )}* минут, завершение *${utils.time.calcDuration(
-          record.time_hour,
-          record.time_minute,
-          record.duration_minute,
-        )}* по GMT - ${weekDays.join(', ')}`,
-      },
-    };
+    const data = uiItems.text.markdownSection(
+      `${utils.emoji.numberToEmoji(i + 1)} ${typesNotification[record.notification_type]} в *${utils.time.timeToString(
+        record.time_hour,
+      )}:${utils.time.timeToString(record.time_minute)}* продолжительность *${utils.time.timeToString(
+        record.duration_minute,
+      )}* минут, завершение *${utils.time.calcDuration(
+        record.time_hour,
+        record.time_minute,
+        record.duration_minute,
+      )}* по GMT - ${weekDays.join(', ')}`,
+    );
 
     if (isAdmin)
       data.accessory = {
@@ -86,9 +71,7 @@ function createList(records, isAdmin, channelId) {
 
     blocks.push(data);
     if (records.length - 1 !== i) {
-      blocks.push({
-        type: 'divider',
-      });
+      blocks.push(uiItems.divider());
     }
   });
 
@@ -106,27 +89,10 @@ function createList(records, isAdmin, channelId) {
 }
 
 function list(channelId, user_id) {
-  const scheduleNotFound = [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Расписание не найдено!*',
-      },
-    },
-  ];
+  const scheduleNotFound = [uiItems.text.markdownSection('*Расписание не найдено!*')];
 
   const scheduleList = (schedule) => {
-    return [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: '*Расписание проветривания:*',
-        },
-      },
-      ...schedule,
-    ];
+    return [uiItems.text.markdownSection('*Расписание проветривания:*'), ...schedule];
   };
 
   return new Promise((resolve) => {
@@ -149,29 +115,13 @@ function list(channelId, user_id) {
           });
       })
       .catch(() => {
-        resolve([
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Расписание не найдено!*',
-            },
-          },
-        ]);
+        resolve([uiItems.text.markdownSection('*Расписание не найдено!*')]);
       });
   });
 }
 
 function dublicateSchedule() {
-  return [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: '*Ошибка добавления расписания!* Такое проветривание уже существует.',
-      },
-    },
-  ];
+  return [uiItems.text.markdownSection('*Ошибка добавления расписания!* Такое проветривание уже существует.')];
 }
 
 const hours = [];

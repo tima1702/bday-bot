@@ -1,4 +1,5 @@
 const db = require('../../db');
+const uiItems = require('../../uiItems');
 
 /**
  * Модальное окно для добавления / изменения города погоды в канале
@@ -50,14 +51,7 @@ function changeModal(channelId) {
     db.channels
       .getWeatherCity(channelId)
       .then((weather_city) => {
-        if (weather_city)
-          modal.blocks.unshift({
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Текущий город:* ${weather_city}`,
-            },
-          });
+        if (weather_city) modal.blocks.unshift(uiItems.text.markdownSection(`*Текущий город:* ${weather_city}`));
         resolve(modal);
       })
       .catch(() => resolve(modal));

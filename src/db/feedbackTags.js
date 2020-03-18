@@ -18,7 +18,21 @@ function findByIds(ids = []) {
 }
 
 function add(name) {
-  return Feedback_Tags.create({ name: name.toLowerCase() });
+  return new Promise((resolve, reject) => {
+    Feedback_Tags.count({ where: { name } })
+      .then((count) => {
+        console.log('..........count', count);
+
+        if (count !== 0) {
+          reject('duplicate');
+          return;
+        }
+        Feedback_Tags.create({ name })
+          .then(() => resolve())
+          .catch(() => reject('error'));
+      })
+      .catch(() => reject('error'));
+  });
 }
 
 function findTags(tagName) {

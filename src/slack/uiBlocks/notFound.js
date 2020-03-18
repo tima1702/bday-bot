@@ -1,86 +1,31 @@
+const uiItems = require('../uiItems');
+
 function commandNotFound(slash, command = '') {
   switch (slash) {
     case 'ventillation':
       return {
         blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Команда ${command ? `"${command}"` : ''} не найдена!*`,
-            },
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: 'Доступные команды:',
-            },
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*add* - добавить время',
-            },
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*schedule* - получить расписание',
-            },
-          },
+          uiItems.text.markdownSection(`*Команда ${command ? `"${command}"` : ''} не найдена!*`),
+          uiItems.text.markdownSection('Доступные команды:'),
+          uiItems.text.markdownSection('*add* - добавить время'),
+          uiItems.text.markdownSection('*schedule* - получить расписание'),
         ],
       };
 
     case 'settings':
       return {
         blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `*Команда ${command ? `"${command}"` : ''} не найдена!*`,
-            },
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: 'Доступные команды:',
-            },
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*weather* - добавить/изменить город погоды',
-            },
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*admin* - управление администраторами',
-            },
-          },
+          uiItems.text.markdownSection(`*Команда ${command ? `"${command}"` : ''} не найдена!*`),
+          uiItems.text.markdownSection('Доступные команды:'),
+          uiItems.text.markdownSection('*weather* - добавить/изменить город погоды'),
+          uiItems.text.markdownSection('*admin* - управление администраторами'),
         ],
       };
 
     default:
       return {
-        blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: 'Такой команды не существует!',
-            },
-          },
-        ],
+        blocks: [uiItems.text.markdownSection('Такой команды не существует!')],
       };
-      break;
   }
 }
 

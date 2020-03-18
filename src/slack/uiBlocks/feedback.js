@@ -1,5 +1,6 @@
 const utils = require('../../utils');
 const dbApp = require('../../db');
+const uiItems = require('../uiItems');
 
 function addModal(channelId) {
   return new Promise((resolve) =>
@@ -101,20 +102,10 @@ function addModal(channelId) {
 
 function feedbackItem(record, count, userId, page, user, tag) {
   const newBlocks = [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `*${record.title}* ${record.url ? `<${record.url}|Открыть статью>` : '_URL не указан_'}`,
-      },
-    },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `${record.slackUserId ? `<@${record.slackUserId}>` : ''} ${record.message || ''}`,
-      },
-    },
+    uiItems.text.markdownSection(
+      `*${record.title}* ${record.url ? `<${record.url}|Открыть статью>` : '_URL не указан_'}`,
+    ),
+    uiItems.text.markdownSection(`${record.slackUserId ? `<@${record.slackUserId}>` : ''} ${record.message || ''}`),
     {
       type: 'context',
       elements: [
@@ -181,24 +172,11 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
       dbApp.feedback.getPage(page, user, tag).catch(() => resolve([])),
       dbApp.feedbackTags.getNameById(tag),
     ]).then(([{ records, count }, tagName]) => {
-      const blocks = [
-        {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: '*Отзывы*',
-          },
-        },
-        {
-          type: 'divider',
-        },
-      ];
+      const blocks = [uiItems.text.markdownSection('*Отзывы*'), uiItems.divider()];
 
       if (count > 0) {
         records.forEach((record) =>
-          blocks.push(...feedbackItem(record, count, userId, page, user, tag), {
-            type: 'divider',
-          }),
+          blocks.push(...feedbackItem(record, count, userId, page, user, tag), uiItems.divider()),
         );
 
         blocks.push(
@@ -211,7 +189,7 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
               },
             ],
           },
-          { type: 'divider' },
+          uiItems.divider(),
         );
       } else {
         let text = '*Не найдено ни одного отзыва!*';
@@ -219,13 +197,7 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
         if (tag) text = `*Тег _${tagName}_ еще не закреплен не за одним отзывом*`;
         if (user && tag) text = `*Пользователь <@${user}> еще не оставлял отзывов c тегом _${tagName}_*`;
 
-        blocks.push({
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text,
-          },
-        });
+        blocks.push(uiItems.text.markdownSection(text));
       }
 
       blocks.push(
@@ -266,32 +238,14 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
       );
 
       if (user || tag) {
-        blocks.push({
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: '*Установлены фильтры:*',
-          },
-        });
+        blocks.push(uiItems.text.markdownSection('*Установлены фильтры:*'));
 
         if (user) {
-          blocks.push({
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `Выбран пользователь <@${user}>`,
-            },
-          });
+          blocks.push(uiItems.text.markdownSection(`Выбран пользователь <@${user}>`));
         }
 
         if (tag) {
-          blocks.push({
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `Выбран тег *${tagName}*`,
-            },
-          });
+          blocks.push(uiItems.text.markdownSection(`Выбран тег *${tagName}*`));
         }
 
         blocks.push({
@@ -313,13 +267,7 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
         const countPages = Math.ceil(count / 3);
 
         const buttons = [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Навигация:*',
-            },
-          },
+          uiItems.text.markdownSection('*Навигация:*'),
           {
             type: 'actions',
             block_id: `changePageInFeedBack:`,
@@ -372,12 +320,7 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
           });
         }
 
-        blocks.push(
-          {
-            type: 'divider',
-          },
-          ...buttons,
-        );
+        blocks.push(uiItems.divider(), ...buttons);
       }
 
       console.log('BYTES: ', utils.byteCount.string(JSON.stringify({ blocks })));

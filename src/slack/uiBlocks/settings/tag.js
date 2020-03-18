@@ -1,4 +1,16 @@
-const dbApp = require('../../../db');
+const uiItems = require('../../uiItems');
+
+function successAdded(tagName) {
+  return uiItems.text.markdownSection(`*Тег _${tagName}_ был успешно добавлен*`);
+}
+
+function errorAddedDuplicate(tagName) {
+  return uiItems.text.markdownSection(`*Ошибка добавления тега _${tagName}_, он уже существует!*`);
+}
+
+function errorAdded(tagName) {
+  return uiItems.text.markdownSection(`*Ошибка добавления тега _${tagName}_!*`);
+}
 
 /**
  * Модальное окно для добавления тега
@@ -22,13 +34,9 @@ function addModal(channelId) {
       text: 'Отмена',
     },
     blocks: [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: '*Внимание! Удалить или изменить тег будет невозможно!* _и он будет сохранен в нижнем регистре_',
-        },
-      },
+      uiItems.text.markdownSection(
+        '*Внимание! Удалить или изменить тег будет невозможно!* _и он будет сохранен в нижнем регистре_',
+      ),
       {
         type: 'input',
         block_id: 'tagName',
@@ -49,4 +57,4 @@ function addModal(channelId) {
   };
 }
 
-module.exports = { addModal };
+module.exports = { addModal, successAdded, errorAddedDuplicate, errorAdded };
