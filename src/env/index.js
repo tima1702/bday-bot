@@ -7,10 +7,15 @@ const env = {
   APP_DB: (envList.parsed && envList.parsed.APP_DB) || 'dbs/app_database.sqlite3',
   SLACK_EVENT_SERVER_PORT: +(envList.parsed && envList.parsed.SLACK_EVENT_SERVER_PORT) || 3003,
   SLACK_EVENT_SERVER_SECRET: +(envList.parsed && envList.parsed.SLACK_EVENT_SERVER_SECRET) || 'super_secret',
+  IS_DEBUG: +(envList.parsed && envList.parsed.DEBUG) || false,
 };
 
 function getSlackToken() {
   return env.SLACK_API_TOKEN;
+}
+
+function isDebug() {
+  return env.IS_DEBUG;
 }
 
 function getAppDB() {
@@ -40,4 +45,5 @@ module.exports = {
   getSlackEventServerSecret,
   getWeatherInterval,
   getWeatherApiToken,
+  isDebug,
 };
