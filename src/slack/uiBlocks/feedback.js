@@ -305,4 +305,12 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
   });
 }
 
-module.exports = { getPage, addOrEditModal };
+function successAdded() {
+  return uiItems.text.markdownSection('*Отзыв успешно добавлен!*');
+}
+
+function errorAdded() {
+  return uiItems.text.markdownSection('*Ошибка добавления отзыва!*');
+}
+
+module.exports = { getPage, addOrEditModal, successAdded, errorAdded };
