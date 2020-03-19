@@ -23,6 +23,10 @@
 
 - `docker build -t exceedteam_bot .`
 
+- `docker exec -it bdaybot_bot_1 npm run db:migrate` для запуска миграций
+
+- `docker exec -it bdaybot_bot_1 npm run db:seed` для добавления начального списка тегов
+
 - `docker-compose up -d`
 
 
@@ -46,17 +50,7 @@ https://api.slack.com/apps/{Your APP ID}/oauth
 
 # SLACK
 
-## Slash path:
-
-`/slack/slash/ventillation/schedule?secret={SLACK_EVENT_SERVER_SECRET}` - command /ventillation_schedule
-
-`/slack/slash/ventillation/add?secret={SLACK_EVENT_SERVER_SECRET}` - command /ventillation_add
-
-`/slack/slash/settings/weather?secret={SLACK_EVENT_SERVER_SECRET}` - command /settings_weather
-
-`/slack/slash/settings/admin?secret={SLACK_EVENT_SERVER_SECRET}` - command /settings_admin
-
-`/slack/slash/weather?secret={SLACK_EVENT_SERVER_SECRET}` - command /weather
+## Path:
 
 `/slack/events?secret={SLACK_EVENT_SERVER_SECRET}` - Events URL
 
@@ -90,6 +84,48 @@ Short Description - Settings Admin
 Request URL - https?: //{YOUR DOMAIN}/slack/slash/settings/weather?secret=super_secret
 
 Short Description - Settings Weather
+
+### /weather
+
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/weather?secret=super_secret
+
+Short Description - Current Weather
+
+### /feedback_add
+
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/feedback/add?secret=super_secret
+
+Short Description - Feedback Add
+
+### /feedback_list
+
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/feedback/list?secret=super_secret
+
+Short Description - Feedback List
+
+### /settings_tag_add
+
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/settings/tag_add?secret=super_secret
+
+Short Description - Settings Tag Add
+
+### /call_start
+
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/call/start?secret=super_secret
+
+Short Description - Начат звонок
+
+### /call_remind
+
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/call/remind?secret=super_secret
+
+Short Description - Напоминание о звонке
+
+### /call_stop
+
+Request URL - https?: //{YOUR DOMAIN}/slack/slash/call/stop?secret=super_secret
+
+Short Description - Звонок завершен
 
 Добавить URL https?: //{YOUR DOMAIN}/slack/interactive?secret=super_secret на странице с настройками интерактивных компонентов
 
