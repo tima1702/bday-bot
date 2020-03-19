@@ -3,6 +3,6 @@ const db = require('./db');
 
 db.weather.updateAllWatcher(); // Update weather
 
-db.init();
+// db.init();
 
 slackServer.init();

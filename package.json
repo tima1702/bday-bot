@@ -7,7 +7,8 @@
     "start": "node src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prettier": "prettier --write \"src/**/*.js*\"",
-    "db:migrate": "sequelize-cli db:migrate"
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:seed": "sequelize-cli db:seed:all --debug"
   },
   "repository": {
     "type": "git",
