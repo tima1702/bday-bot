@@ -5,7 +5,7 @@ const router = express.Router();
 const client = require('../../client');
 
 router.post('/list', function(req, res) {
-  uiBlocks.feedback.getPage().then((blocks) => {
+  uiBlocks.feedback.getPage(0, '', '', req.body.user_id).then((blocks) => {
     res.json({ blocks });
   });
 });

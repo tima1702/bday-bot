@@ -2,85 +2,98 @@ const utils = require('../../utils');
 const dbApp = require('../../db');
 const uiItems = require('../uiItems');
 
-function addModal(channelId) {
-  return new Promise((resolve) =>
-    resolve(
-      uiItems.modal.create(
-        'Добавление отзыва',
-        `modal-feedback-add:${channelId}`,
-        [
-          {
-            type: 'input',
-            block_id: 'feedbackTitle',
-            element: {
-              action_id: 'actionFeedbackTitle',
-              type: 'plain_text_input',
-              placeholder: {
-                type: 'plain_text',
-                text: 'Введите название',
-              },
-            },
-            label: {
+function addOrEditModal(channelId, initalValues = null) {
+  return new Promise((resolve) => {
+    const modal = uiItems.modal.create(
+      `${initalValues ? 'Редактирование' : 'Добавление'} отзыва`,
+      `modal-feedback-${initalValues ? 'edit' : 'add'}:${channelId}`,
+      [
+        {
+          type: 'input',
+          block_id: 'feedbackTitle',
+          element: {
+            action_id: 'actionFeedbackTitle',
+            type: 'plain_text_input',
+            placeholder: {
               type: 'plain_text',
-              text: 'Название',
+              text: 'Введите название',
             },
           },
-          {
-            type: 'input',
-            block_id: 'feedbackURL',
-            element: {
-              action_id: 'actionFeedbackURL',
-              type: 'plain_text_input',
-              placeholder: {
-                type: 'plain_text',
-                text: 'Введите URL статьи / видео',
-              },
-            },
-            label: {
+          label: {
+            type: 'plain_text',
+            text: 'Название',
+          },
+        },
+        {
+          type: 'input',
+          block_id: 'feedbackURL',
+          element: {
+            action_id: 'actionFeedbackURL',
+            type: 'plain_text_input',
+            placeholder: {
               type: 'plain_text',
-              text: 'URL',
+              text: 'Введите URL статьи / видео',
             },
           },
-          {
-            type: 'input',
-            block_id: 'feedbackReview',
-            element: {
-              action_id: 'actionFeedbackReview',
-              type: 'plain_text_input',
-              multiline: true,
-              placeholder: {
-                type: 'plain_text',
-                text: 'Напишите отзыв',
-              },
-            },
-            label: {
+          label: {
+            type: 'plain_text',
+            text: 'URL',
+          },
+        },
+        {
+          type: 'input',
+          block_id: 'feedbackReview',
+          element: {
+            action_id: 'actionFeedbackReview',
+            type: 'plain_text_input',
+            multiline: true,
+            placeholder: {
               type: 'plain_text',
-              text: 'Отзыв',
+              text: 'Напишите отзыв',
             },
           },
-          {
-            type: 'input',
-            block_id: 'feedbackTags',
-            element: {
-              action_id: 'actionFeedbackTags',
-              type: 'multi_external_select',
-              placeholder: {
-                type: 'plain_text',
-                text: 'Выберите теги (начните ввод)',
-              },
-              min_query_length: 1,
-            },
-            label: {
-              type: 'plain_text',
-              text: 'Теги',
-            },
+          label: {
+            type: 'plain_text',
+            text: 'Отзыв',
           },
-        ],
-        {},
-        'Добавить',
-      ),
-    ),
-  );
+        },
+        {
+          type: 'input',
+          block_id: 'feedbackTags',
+          element: {
+            action_id: 'actionFeedbackTags',
+            type: 'multi_external_select',
+            placeholder: {
+              type: 'plain_text',
+              text: 'Выберите теги (начните ввод)',
+            },
+            min_query_length: 1,
+          },
+          label: {
+            type: 'plain_text',
+            text: 'Теги',
+          },
+        },
+      ],
+      {},
+      initalValues ? 'Изменить' : 'Добавить',
+    );
+
+    if (initalValues && typeof initalValues === 'object') {
+      modal.blocks.forEach((block, blockId) => {
+        Object.keys(initalValues).forEach((key) => {
+          if (block.block_id === key) {
+            if (typeof initalValues[key] === 'string') {
+              modal.blocks[blockId].element.initial_value = initalValues[key];
+            } else {
+              modal.blocks[blockId].element.initial_options = initalValues[key];
+            }
+          }
+        });
+      });
+    }
+    resolve(modal);
+  });
 }
 
 function feedbackItem(record, count, userId, page, user, tag) {
@@ -104,28 +117,36 @@ function feedbackItem(record, count, userId, page, user, tag) {
 
   if (userId && record.slackUserId === userId) {
     const maxPageAfterDelete = Math.ceil((count - 1) / 3) - 1;
-    newBlocks.push(
-      uiItems.text.markdownSection('Вы можете удалить этот отзыв:', {
-        accessory: {
-          action_id: `deleteFeedback:${JSON.stringify({
+    newBlocks.push(uiItems.text.markdownSection('*Действия с отзывом:*'), {
+      type: 'actions',
+      elements: [
+        uiItems.actions.button(
+          'Изменить',
+          `${record.id}`,
+          `editFeedback:${JSON.stringify({
+            page,
+            tag,
+            user,
+          })}`,
+        ),
+        uiItems.actions.button(
+          'Удалить',
+          `${record.id}`,
+          `deleteFeedback:${JSON.stringify({
             page: maxPageAfterDelete < page ? maxPageAfterDelete : page,
             tag,
             user,
           })}`,
-          type: 'button',
-          text: {
-            type: 'plain_text',
-            text: 'Удалить',
+          {
+            confirm: uiItems.confirm(
+              'Вы уверены?',
+              `Вы действительно хотите удалить отзыв к статье: *_${record.title}_*?`,
+            ),
+            style: 'danger',
           },
-          confirm: uiItems.confirm(
-            'Вы уверены?',
-            `Вы действительно хотите удалить отзыв к статье: *_${record.title}_*?`,
-          ),
-          style: 'danger',
-          value: `${record.id}`,
-        },
-      }),
-    );
+        ),
+      ],
+    });
   }
 
   return newBlocks;
@@ -284,4 +305,4 @@ function getPage(page = 0, user = '', tag = '', userId = '') {
   });
 }
 
-module.exports = { getPage, addModal };
+module.exports = { getPage, addOrEditModal };

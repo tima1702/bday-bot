@@ -21,8 +21,6 @@ function add(name) {
   return new Promise((resolve, reject) => {
     Feedback_Tags.count({ where: { name } })
       .then((count) => {
-        console.log('..........count', count);
-
         if (count !== 0) {
           reject('duplicate');
           return;

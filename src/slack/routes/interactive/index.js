@@ -51,16 +51,16 @@ router.post('/', function(req, res) {
       const view = payload.view || {};
       const userId = payload.user.id || '';
 
-      if (payload.type === 'block_actions') {
-        const updatePageFeedback = (page, user, tag) => {
-          uiBlocks.feedback.getPage(page, user, tag, userId).then((blocks) => {
-            axios.post(payload.response_url, {
-              replace_original: 'true',
-              blocks,
-            });
+      const updatePageFeedback = (page, user, tag, responseURL = null) => {
+        uiBlocks.feedback.getPage(page, user, tag, userId).then((blocks) => {
+          axios.post(responseURL || payload.response_url, {
+            replace_original: 'true',
+            blocks,
           });
-        };
+        });
+      };
 
+      if (payload.type === 'block_actions') {
         payload.actions.forEach((item) => {
           const [actionType, channelId] = (item.action_id && item.action_id.split(':')) || ['', ''];
           let additionalData = {};
@@ -71,6 +71,15 @@ router.post('/', function(req, res) {
           }
 
           switch (actionType) {
+            case 'editFeedback':
+              client.feedback.openEditModal(payload.channel.id, payload.trigger_id, item.value, {
+                responseURL: payload.response_url,
+                page: additionalData.page || 0,
+                user: additionalData.user || '',
+                tag: additionalData.tag || '',
+              });
+              break;
+
             case 'deleteFeedback':
               dbApp.feedback
                 .deleteById(item.value)
@@ -137,9 +146,29 @@ router.post('/', function(req, res) {
         });
       } else {
         const [callbackType, channelId] = (view.callback_id && view.callback_id.split(':')) || ['', ''];
+        let additionalData = {};
+        try {
+          additionalData = JSON.parse(view.callback_id.replace(`${callbackType}:`, ''));
+        } catch (e) {
+          additionalData = {};
+        }
+        console.log('..........callbackType', callbackType);
         switch (callbackType) {
           case 'modal-ventillation-add':
             res.json(actionVentillation.add(view, channelId, userId));
+            return;
+          case 'modal-feedback-edit':
+            actionFeedback.edit(view, additionalData.channelId, userId, additionalData.recordId).then((data) => {
+              res.json(data);
+
+              if (additionalData.data)
+                updatePageFeedback(
+                  additionalData.data.page || 0,
+                  additionalData.data.user || '',
+                  additionalData.data.tag || '',
+                  additionalData.data.responseURL || null,
+                );
+            });
             return;
           case 'modal-feedback-add':
             res.json(actionFeedback.add(view, channelId, userId));

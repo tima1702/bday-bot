@@ -74,7 +74,15 @@ function createList(records, isAdmin, channelId) {
     }
   });
 
-  blocks.unshift(uiItems.text.markdownContext('Время указано в GMT'));
+  blocks.unshift({
+    type: 'context',
+    elements: [
+      {
+        type: 'mrkdwn',
+        text: 'Время указано в GMT',
+      },
+    ],
+  });
 
   return blocks;
 }
