@@ -1,15 +1,23 @@
 const { WebClient } = require('@slack/web-api');
 const env = require('../../env');
+const uiItems = require('../uiItems');
 const web = new WebClient(env.getSlackToken());
 
 function postEphemeral(channelId, userId, text = '', blocks = [], attr = {}) {
-  return web.chat.postEphemeral({
-    channel: channelId,
-    user: userId,
-    text,
-    blocks,
-    ...attr,
-  });
+  return web.chat
+    .postEphemeral({
+      channel: channelId,
+      user: userId,
+      text,
+      blocks,
+      ...attr,
+    })
+    .catch(() =>
+      postMessage(userId, 'Ошибка доставки сообщения!', [
+        uiItems.text.markdownSection('*Ошибка доставки сообщения! >>>*'),
+        ...blocks,
+      ]),
+    );
 }
 
 function postMessage(channelId, text = '', blocks = [], attr = {}) {
