@@ -25,18 +25,14 @@ function startServer() {
   });
 
   app.use('/slack/slash/ventillation', routes.slash.ventillation);
-
   app.use('/slack/slash/settings', routes.slash.settings);
-
   app.use('/slack/slash/call', routes.slash.call);
-
   app.use('/slack/slash/weather', routes.slash.weather);
+  app.use('/slack/slash/feedback', routes.slash.feedback);
 
   app.use('/slack/events', routes.events);
 
   app.use('/slack/interactive', routes.interactive);
-
-  app.use('/slack/slash/feedback', routes.slash.feedback);
 
   app.listen(env.getSlackEventServerPort());
 }

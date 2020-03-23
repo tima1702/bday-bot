@@ -3,7 +3,6 @@ const api = require('../../api');
 function getList(req, res) {
   api.channels
     .list()
-    .list()
     .then((data) => {
       if (!data || !data.ok) res.status(400).end();
 

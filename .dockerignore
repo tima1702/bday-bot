@@ -3,6 +3,7 @@ node_modules
 database.db
 ./dbs
 ./log
+coverage
 .env.example
 .history
 .gitignore

@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "start:dev": "DEBUG=true node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest --collect-coverage",
+    "test:watch": "jest --collect-coverage --watchAll",
     "prettier": "prettier --write \"src/**/*.js*\"",
     "db:migrate": "sequelize-cli db:migrate",
     "db:seed": "sequelize-cli db:seed:all --debug"
@@ -32,6 +33,7 @@
     "sqlite3": "^4.1.1"
   },
   "devDependencies": {
+    "jest": "^25.1.0",
     "sequelize-cli": "^5.5.1"
   }
 }

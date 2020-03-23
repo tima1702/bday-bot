@@ -1,4 +1,9 @@
 function create(title, callbackId, blocks = [], attr = {}, submit = 'Сохранить', close = 'Отмена') {
+  if (!title || !callbackId) {
+    console.error('In Modal create required fields: title, callbackId');
+    return {};
+  }
+
   return {
     type: 'modal',
     callback_id: callbackId,

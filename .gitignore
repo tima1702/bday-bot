@@ -6,3 +6,4 @@ dbs
 .history
 log
 app.log
+coverage

@@ -1,5 +1,5 @@
 function timeToString(time) {
-  return +time < 10 ? `0${time}` : `${time}`;
+  return +time < 13 ? `0${time}` : `${time}`;
 }
 
 function calcDuration(hour, minute, duration) {
